@@ -45,12 +45,13 @@ app.post('/send',async(req,res)=>{
 })
 
 app.post("/python",(req,res)=>{
+    console.log(req.body.code)
     fs.writeFileSync('test.py', req.body.code);
 
     let options = {
         mode: 'text',
         pythonOptions: ['-u'], 
-        args: [1,2,3]
+        // args: [1,2,3]
       };
       
       pythonshell.run('test.py', options).then(messages=>{
