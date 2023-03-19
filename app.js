@@ -4,6 +4,8 @@ const express =require("express")
 const app=express()
 const mongoose=require('mongoose')
 const bodyParser=require('body-parser')
+const pythonshell=require("python-shell").PythonShell
+
 
 app.use(bodyParser.json())
 var contestSchema=mongoose.Schema({
@@ -42,6 +44,21 @@ app.post('/send',async(req,res)=>{
     res.json({result:"success"})
 })
 
+app.post("/python",(req,res)=>{
+    fs.writeFileSync('test.py', req.body.code);
+
+    let options = {
+        mode: 'text',
+        pythonOptions: ['-u'], 
+        args: [1,2,3]
+      };
+      
+      pythonshell.run('test.py', options).then(messages=>{
+        // results is an array consisting of messages collected during execution
+        console.log('results: %j', messages);
+        res.json({msg:messages})
+      });    
+})
 
 
 
