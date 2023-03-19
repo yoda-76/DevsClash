@@ -53,7 +53,7 @@ app.post("/python",(req,res)=>{
     let options = {
         mode: 'text',
         pythonOptions: ['-u'], 
-        // args: [1,2,3]
+        args: [1,2,3]
       };
       
       pythonshell.run('test.py', options).then(messages=>{
