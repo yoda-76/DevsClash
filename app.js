@@ -1,5 +1,6 @@
 
 const fs=require('fs')
+const cors=require("cors")
 const express =require("express")
 const app=express()
 const mongoose=require('mongoose')
@@ -8,6 +9,7 @@ const pythonshell=require("python-shell").PythonShell
 
 
 app.use(bodyParser.json())
+app.use(cors())
 var contestSchema=mongoose.Schema({
     title: String,
     topic: String,
