@@ -23,7 +23,8 @@ var contestSchema=mongoose.Schema({
     startTimeMinute:String,
     startTimeSecound:String,
     topic: String,
-    noOfQuestions:Number
+    noOfQuestions:Number,
+    participants:Object
 
 })
 
@@ -66,13 +67,36 @@ app.post('/send',async(req,res)=>{
     res.json(cObj)
 })
 
-app.post("/join",async(req,res)=>{
-    id=req.body.id
-    // fetch data from db
-    // var data=await contestObjModel.find({id=id})
-    //add participant to the contest object in db p:{pID,solved}
-    res.json({contest:data})
-})
+// app.patch("/join",async(req,res)=>{
+//     id=req.body.id
+
+//     var s=await contestObjModel.updateOne({id:id},{ $set:{participants:{id:"temp-id"}}})
+//     console.log(id)
+//     res.json({"msg":"good"})
+// })
+
+
+app.patch("/join", async (req, res) => {
+    try {
+      const id = req.body.id;
+      var data1=await contestObjModel.find({id:id})
+      console.log("data1",data1[0])
+      const result = await contestObjModel.updateOne(
+        { id },
+        { $set: { participants: [...(data1[0].participants),{id:id, solved:0}]} }
+      );
+      if (result.nModified === 0) {
+        // If the document wasn't modified, it means it wasn't found
+        return res.status(404).json({ msg: "Document not found" });
+      }
+      return res.json(data1[0]);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ msg: "Internal Server Error" });
+    }
+  });
+
+
 
 app.post("/python",(req,res)=>{
     console.log(req.body.code)
