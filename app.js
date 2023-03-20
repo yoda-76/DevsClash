@@ -11,7 +11,7 @@ const pythonshell=require("python-shell").PythonShell
 app.use(bodyParser.json())
 app.use(cors())
 
-const Q=[{st:`Given a positive integer n, find the nth fibonacci number. Since the answer can be very large, return the answer modulo 1000000007
+var Q=[{st:`Given a positive integer n, find the nth fibonacci number. Since the answer can be very large, return the answer modulo 1000000007
 Example 
 Input: n = 2
 Output: 1
@@ -37,7 +37,37 @@ Output: YES
     Example :  
     Input: N = 4
     Output: 5
-      `,p:[["17",35]]}
+      `,p:[["17",35]]},
+      {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
+      Example :  
+      Input: N = 4
+      Output: 5
+        `,p:[["17",35]]},
+        {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
+        Example :  
+        Input: N = 4
+        Output: 5
+          `,p:[["17",35]]},
+          {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
+          Example :  
+          Input: N = 4
+          Output: 5
+            `,p:[["17",35]]},
+            {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
+            Example :  
+            Input: N = 4
+            Output: 5
+              `,p:[["17",35]]},
+              {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
+              Example :  
+              Input: N = 4
+              Output: 5
+                `,p:[["17",35]]},
+                {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
+                Example :  
+                Input: N = 4
+                Output: 5
+                  `,p:[["17",35]]}
     
 
 
@@ -127,7 +157,17 @@ const  checkWin =async(roomId,id)=>{
 app.post('/send',async(req,res)=>{
     console.log(req.body)
     //generate questions dinamically
-    var cObj={...req.body,questions}
+    let questions=[]
+    for(let i=0;i<Number(req.body.noOfQuestions);i++){
+        questions[i]=Q[Math.floor((Math.random() * 10) + 1)]
+        
+        console.log("insidi",i,questions[i])
+        
+    }
+    console.log("choosen qs",questions)
+    console.log(Q[Math.floor((Math.random() * 10) + 1)])
+
+    var cObj={...req.body,questions:questions}
     var newObj=new contestObjModel(cObj);
     await newObj.save()
     res.json(cObj)
