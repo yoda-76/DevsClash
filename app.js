@@ -78,17 +78,21 @@ app.post('/send',async(req,res)=>{
 
 app.patch("/join", async (req, res) => {
     try {
-      const id = req.body.id;
-      var data1=await contestObjModel.find({id:id})
-      console.log("data1",data1[0])
+      const roomId = req.body["room-id"];
+      console.log("room id",roomId)
+      const id=req.body.id
+      console.log("id",id)
+
+      var data1=await contestObjModel.find({id:roomId})
       const result = await contestObjModel.updateOne(
-        { id },
+        { id:roomId },
         { $set: { participants: [...(data1[0].participants),{id:id, solved:0}]} }
       );
       if (result.nModified === 0) {
         // If the document wasn't modified, it means it wasn't found
         return res.status(404).json({ msg: "Document not found" });
       }
+      data1=await contestObjModel.find({id:roomId})
       return res.json(data1[0]);
     } catch (error) {
       console.error(error);
