@@ -11,7 +11,37 @@ const pythonshell=require("python-shell").PythonShell
 app.use(bodyParser.json())
 app.use(cors())
 
+const Q=[{st:`Given a positive integer n, find the nth fibonacci number. Since the answer can be very large, return the answer modulo 1000000007
+Example 
+Input: n = 2
+Output: 1
+    `,p:[["89",544858368]]},
+    {st:`Write a program to Validate an IPv4 Address.
+According to Wikipedia, IPv4 addresses are canonically represented in dot-decimal notation, which consists of four decimal numbers, each ranging from 0 to 255, separated by dots, e.g., 172.16.254.1
+A valid IPv4 Address is of the form x1.x2.x3.x4 where 0 <= (x1, x2, x3, x4) <= 255.
+Thus, we can write the generalized form of an IPv4 address as (0-255).(0-255).(0-255).(0-255).
+Note: Here we are considering numbers only from 0 to 255 and any additional leading zeroes will be considered invalid.
+Your task is to complete the function isValid which returns 1 if the given IPv4 address is valid else returns 0. The function takes the IPv4 address as the only argument in the form of string.
+Example 
+Input:
+IPv4 address = 222.111.111.111
+Output: 1
+    `,p:[["5555.555",0]]},
 
+    {st:`Given a non-negative integer N. The task is to check if N is a power of 2. More formally, check if N can be expressed as 2x for some x.
+Example :
+Input: N = 1
+Output: YES
+    `,p:[["98","NO"]]},
+    {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
+    Example :  
+    Input: N = 4
+    Output: 5
+      `,p:[["17",35]]}
+    
+
+
+]
 var contestSchema=mongoose.Schema({
     title: String,
     difficulty:String,
@@ -24,7 +54,8 @@ var contestSchema=mongoose.Schema({
     startTimeSecound:String,
     topic: String,
     noOfQuestions:Number,
-    participants:Object
+    participants:Object,
+    winner:String
 
 })
 
@@ -43,25 +74,60 @@ app.get("/",async(req,res)=>{
     res.json({result:data})
 })
 
+const  checkWin =async(roomId,id)=>{
+    const data3=await contestObjModel.find({id:roomId})
+    console.log(data3[0].participants)
+    const p=data3[0].participants.filter((p)=>{
+        return p.id==id})
+    let count=0
+    p.map((n)=>{
+        if(n==1){
+            count=count+1
+        }
+    })
+    console.log(p)
+        if(count==data3[0].noOfQuestions){
+            
+
+
+            // ...........
+            app.patch("/winner", async (req, res) => {
+                try {
+                  const roomId = req.body.roomId;
+                  console.log("roomId",roomId)
+                  const id=req.body.id
+                  console.log("id",id)
+            
+                  
+                  const result = await contestObjModel.updateOne(
+                    { id:roomId },
+                    { $set: { winner: id} }
+                  );
+                  if (result.nModified === 0) {
+                    // If the document wasn't modified, it means it wasn't found
+                    return res.status(404).json({ msg: "Document not found" });
+                  }
+                  const data4=await contestObjModel.find({id:roomId})
+                  return res.json(data4[0]);
+                } catch (error) {
+                  console.error(error);
+                  return res.status(500).json({ msg: "Internal Server Error" });
+                }
+              });
+            // ............
+        
+        
+        }
+}
+
+
+
+
 
 app.post('/send',async(req,res)=>{
     console.log(req.body)
-    var cObj={...req.body,questions:{q1:{st:`Given a string of characters, find the length of the longest proper prefix which is also a proper suffix.
-    NOTE: Prefix and suffix can be overlapping but they should not be equal to the entire string.
-    
-    Example 
-    Input: s = "abab"
-    Output: 2
-    `,p:[["aaaa",3]]},q2:{st:`Given a string, find the minimum number of characters to be inserted to convert it to palindrome.
-    For Example:
-    ab: Number of insertions required is 1. bab or aba
-    aa: Number of insertions required is 0. aa
-    abcd: Number of insertions required is 3. Dcbabcd
-    
-    Example 
-    Input: str = "abcd"
-    Output: 3
-    `,p:[["abcd",3]]}}}
+    //generate questions dinamically
+    var cObj={...req.body,questions}
     var newObj=new contestObjModel(cObj);
     await newObj.save()
     res.json(cObj)
@@ -76,17 +142,23 @@ app.post('/send',async(req,res)=>{
 // })
 
 
+// app.patch("/submited")
+
 app.patch("/join", async (req, res) => {
     try {
-      const roomId = req.body["room-id"];
-      console.log("room id",roomId)
+      const roomId = req.body.roomId;
+      console.log("roomId",roomId)
       const id=req.body.id
       console.log("id",id)
 
       var data1=await contestObjModel.find({id:roomId})
+      console.log(data1)
+
+      data1=data1.filter((obj)=>obj.id===roomId)
+      console.log(data1)
       const result = await contestObjModel.updateOne(
         { id:roomId },
-        { $set: { participants: [...(data1[0].participants),{id:id, solved:0}]} }
+        { $set: { participants: [...(data1[0].participants),{id:id, solved:Array(2).fill(0)}]} }
       );
       if (result.nModified === 0) {
         // If the document wasn't modified, it means it wasn't found
@@ -104,17 +176,44 @@ app.patch("/join", async (req, res) => {
 
 app.post("/python",(req,res)=>{
     console.log(req.body.code)
-    fs.writeFileSync('test.py', req.body.code);
+    const id= req.body.id
+    const roomId=req.body.roomId
+    const Q=req.body.Q
+    fs.writeFileSync(`id${id}.py`, req.body.code);
 
     let options = {
         mode: 'text',
         pythonOptions: ['-u'], 
-        args: [1,2,3]
+        args: []
       };
       
-      pythonshell.run('test.py', options).then(messages=>{
-        // if result is true then update participant-> solved in contest obj in db
-        //before sending check for winning condition
+      pythonshell.run(`id${id}.py`, options).then(messages=>{
+    //     // if result is true then update participant-> solved in contest obj in db
+    if (messages=="true"){
+        console.log("inside")
+        
+        const t=async()=>{
+            var data2=await contestObjModel.find({id:roomId})
+            console.log(data2)
+            const updatedPartcipants=data2[0].participants.map((p)=>{
+                if(p.id==id){
+                    let solved=p.solved
+                    console.log(Q)
+                    solved[Number(Q)-1]=1
+                    return {...p, solved:solved}
+                }
+                return p
+            })
+            console.log(updatedPartcipants[0].solved.length)
+            const result = await contestObjModel.updateOne(
+                { id:roomId },
+                { $set: { participants: updatedPartcipants }}
+              );
+        }
+        t()
+        checkWin(roomId,id)
+    }
+    //     //before sending check for winning condition
         res.json({msg:messages})//also send the updated contest obj
       });    
 })
