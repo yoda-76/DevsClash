@@ -10,17 +10,22 @@ const pythonshell=require("python-shell").PythonShell
 
 app.use(bodyParser.json())
 app.use(cors())
+
+//update schema
+//.....................................................................................................
 var contestSchema=mongoose.Schema({
     title: String,
-    topic: String,
-    difficulty: String,
-    numberOfQuestions: Number,
-    time: String,
-    duration: Number,
-    entryFee: Number,
-    price:Number,
+    difficulty:String,
+    duration : String,
+    id: String,
     questions: Object,
-    participants: Object
+    startTime:String,
+    startTimeHour:String,
+    startTimeMinute:String,
+    startTimeSecound:String,
+    topic: String,
+    noOfQuestions:Number
+
 })
 
 var contestObjModel=new mongoose.model('contestObjModel',contestSchema);
@@ -41,9 +46,33 @@ app.get("/",async(req,res)=>{
 
 app.post('/send',async(req,res)=>{
     console.log(req.body)
-    var newObj=new contestObjModel(req.body);
+    var cObj={...req.body,Q:{q1:{st:`Given a string of characters, find the length of the longest proper prefix which is also a proper suffix.
+    NOTE: Prefix and suffix can be overlapping but they should not be equal to the entire string.
+    
+    Example 
+    Input: s = "abab"
+    Output: 2
+    `,p:[["aaaa",3]]},q2:{st:`Given a string, find the minimum number of characters to be inserted to convert it to palindrome.
+    For Example:
+    ab: Number of insertions required is 1. bab or aba
+    aa: Number of insertions required is 0. aa
+    abcd: Number of insertions required is 3. Dcbabcd
+    
+    Example 
+    Input: str = "abcd"
+    Output: 3
+    `,p:[["abcd",3]]}}}
+    var newObj=new contestObjModel(cObj);
     await newObj.save()
-    res.json({result:"success"})
+    res.json(cObj)
+})
+
+app.post("/join",async(req,res)=>{
+    id=req.body.id
+    // fetch data from db
+    // var data=await contestObjModel.find({id=id})
+    //add participant to the contest object in db p:{pID,solved}
+    res.json({contest:data})
 })
 
 app.post("/python",(req,res)=>{
@@ -57,9 +86,9 @@ app.post("/python",(req,res)=>{
       };
       
       pythonshell.run('test.py', options).then(messages=>{
-        // results is an array consisting of messages collected during execution
-        console.log('results: %j', messages);
-        res.json({msg:messages})
+        // if result is true then update participant-> solved in contest obj in db
+        //before sending check for winning condition
+        res.json({msg:messages})//also send the updated contest obj
       });    
 })
 
