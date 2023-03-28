@@ -15,7 +15,7 @@ var Q=[{st:`Given a positive integer n, find the nth fibonacci number. Since the
 Example 
 Input: n = 2
 Output: 1
-    `,p:[["89",544858368]]},
+    `,p:[[89,544858368]]},
     {st:`Write a program to Validate an IPv4 Address.
 According to Wikipedia, IPv4 addresses are canonically represented in dot-decimal notation, which consists of four decimal numbers, each ranging from 0 to 255, separated by dots, e.g., 172.16.254.1
 A valid IPv4 Address is of the form x1.x2.x3.x4 where 0 <= (x1, x2, x3, x4) <= 255.
@@ -26,48 +26,48 @@ Example
 Input:
 IPv4 address = 222.111.111.111
 Output: 1
-    `,p:[["5555.555",0]]},
+    `,p:[[5555.555,0]]},
 
     {st:`Given a non-negative integer N. The task is to check if N is a power of 2. More formally, check if N can be expressed as 2x for some x.
 Example :
 Input: N = 1
 Output: YES
-    `,p:[["98","NO"]]},
+    `,p:[[98,"NO"]]},
     {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
     Example :  
     Input: N = 4
     Output: 5
-      `,p:[["17",35]]},
+      `,p:[[17,35]]},
       {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
       Example :  
       Input: N = 4
       Output: 5
-        `,p:[["17",35]]},
+        `,p:[[17,35]]},
         {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
         Example :  
         Input: N = 4
         Output: 5
-          `,p:[["17",35]]},
+          `,p:[[17,35]]},
           {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
           Example :  
           Input: N = 4
           Output: 5
-            `,p:[["17",35]]},
+            `,p:[[17,35]]},
             {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
             Example :  
             Input: N = 4
             Output: 5
-              `,p:[["17",35]]},
+              `,p:[[17,35]]},
               {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
               Example :  
               Input: N = 4
               Output: 5
-                `,p:[["17",35]]},
+                `,p:[[17,35]]},
                 {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
                 Example :  
                 Input: N = 4
                 Output: 5
-                  `,p:[["17",35]]}
+                  `,p:[[17,35]]}
     
 
 
@@ -214,21 +214,35 @@ app.patch("/join", async (req, res) => {
 
 
 
-app.post("/python",(req,res)=>{
+app.post("/python",async(req,res)=>{
     console.log(req.body.code)
     const id= req.body.id
     const roomId=req.body.roomId
     const Q=req.body.Q
+
+    var data5=await contestObjModel.find({id:roomId})
+      console.log(data5)
+
+    // var data5=await contestObjModel.find({id:roomId}).then(()=>{
+    //   console.log(data5)
+    // })
+    // data5=data5.filter((obj)=>obj.id===roomId)
+    console.log(`
+    id=${id}
+    room id = ${roomId}
+    Q= ${Q}
+    data = ${data5}
+    `)
     fs.writeFileSync(`id${id}.py`, req.body.code);
 
     let options = {
         mode: 'text',
         pythonOptions: ['-u'], 
-        args: []
+        args: data5[0].questions[Number(Q)].p[0]
       };
       
       pythonshell.run(`id${id}.py`, options).then(messages=>{
-    //     // if result is true then update participant-> solved in contest obj in db
+         // if result is true then update participant-> solved in contest obj in db
     if (messages=="true"){
         console.log("inside")
         
@@ -261,3 +275,6 @@ app.post("/python",(req,res)=>{
 
 
 app.listen(3000)
+
+
+

@@ -1,1 +1,2 @@
-print('true')
+import sys 
+print(sys.argv)
