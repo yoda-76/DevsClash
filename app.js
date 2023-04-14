@@ -128,13 +128,16 @@ app.post("/login",async(req,res)=>{
   
   const data = await userObjectModel.find({user_Name:user_name});
   console.log("data",data);
-  if(data === null){
-      res.send({msg:"user not found"});
+  if(data[0]){
+      
+    if(data[0].password === password){
+        res.json({msg:"true",user:data});
+    }else{
+      res.json({msg:"wrong password"})
+    }
   }
   else{
-      if(data[0].password === password){
-          res.json({msg:"true",user:data});
-      }
+    res.send({msg:"user not found"});
   }
   
 });
