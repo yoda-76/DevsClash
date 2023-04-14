@@ -126,17 +126,17 @@ app.post("/signin", async(req,res)=>{
 app.post("/login",async(req,res)=>{
   const {user_name, password}=req.body;
   
-  const data = await userObjectModel.find({user_name:user_name});
-  console.log(data);
+  const data = await userObjectModel.find({user_Name:user_name});
+  console.log("data",data);
   if(data === null){
       res.send({msg:"user not found"});
   }
   else{
-      if(data.password === password){
-          res.send({msg:"true",user:data});
+      if(data[0].password === password){
+          res.json({msg:"true",user:data});
       }
   }
-  res.send("done");
+  
 });
 
 // const  checkWin =async(roomId,id)=>{
@@ -303,11 +303,12 @@ app.post("/compiler",function(req,res){
   const code = data.code;
   const input= data.input;
   const envData = { OS : "windows" , cmd : "g++"};
-  compiler.compilePythonWithInput( envData , code , input ,  function(data){
-        res.send(data);        
-    });
+  compiler.compileCPP(envData , code , function (data) {
+    res.send(data);
+    //data.error = error message 
+    //data.output = output value
 });
-
+});
 app.listen(3000)
 
 

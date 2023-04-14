@@ -1,0 +1,1 @@
+#include<bits/stdc++,h>;#include io_stream;int main(){cout<<1<<endl};
