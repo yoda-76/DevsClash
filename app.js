@@ -89,7 +89,19 @@ var contestSchema=mongoose.Schema({
 
 })
 
+var userSchema=mongoose.Schema({
+  usereName: String,
+  password: String,
+  email: String,
+  name: String,
+  contest: Object,
+  wallet: Number,
+
+})
+
 var contestObjModel=new mongoose.model('contestObjModel',contestSchema);
+var userObjModel=new mongoose.model('userObjModel',userSchema);
+
 
 mongoose.connect('mongodb+srv://yadvendras20:abcd1234@cluster0.qw0zi6d.mongodb.net/?retryWrites=true&w=majority').then(e=>{
     console.log("success")
@@ -121,29 +133,29 @@ const  checkWin =async(roomId,id)=>{
 
 
             // ...........
-            app.patch("/winner", async (req, res) => {
-                try {
-                  const roomId = req.body.roomId;
-                  console.log("roomId",roomId)
-                  const id=req.body.id
-                  console.log("id",id)
+            // app.patch("/winner", async (req, res) => {
+            //     try {
+            //       const roomId = req.body.roomId;
+            //       console.log("roomId",roomId)
+            //       const id=req.body.id
+            //       console.log("id",id)
             
                   
-                  const result = await contestObjModel.updateOne(
-                    { id:roomId },
-                    { $set: { winner: id} }
-                  );
-                  if (result.nModified === 0) {
-                    // If the document wasn't modified, it means it wasn't found
-                    return res.status(404).json({ msg: "Document not found" });
-                  }
-                  const data4=await contestObjModel.find({id:roomId})
-                  return res.json(data4[0]);
-                } catch (error) {
-                  console.error(error);
-                  return res.status(500).json({ msg: "Internal Server Error" });
-                }
-              });
+            //       const result = await contestObjModel.updateOne(
+            //         { id:roomId },
+            //         { $set: { winner: id} }
+            //       );
+            //       if (result.nModified === 0) {
+            //         // If the document wasn't modified, it means it wasn't found
+            //         return res.status(404).json({ msg: "Document not found" });
+            //       }
+            //       const data4=await contestObjModel.find({id:roomId})
+            //       return res.json(data4[0]);
+            //     } catch (error) {
+            //       console.error(error);
+            //       return res.status(500).json({ msg: "Internal Server Error" });
+            //     }
+            //   });
             // ............
         
         
@@ -152,6 +164,8 @@ const  checkWin =async(roomId,id)=>{
 
 
 
+
+app.post()
 
 
 app.post('/send',async(req,res)=>{
@@ -167,7 +181,7 @@ app.post('/send',async(req,res)=>{
     console.log("choosen qs",questions)
     console.log(Q[Math.floor((Math.random() * 10) + 1)])
 
-    var cObj={...req.body,questions:questions}
+    var cObj={...req.body,questions:questions, participants: [{id:req.body.id, solved: 0}]}
     var newObj=new contestObjModel(cObj);
     await newObj.save()
     res.json(cObj)
