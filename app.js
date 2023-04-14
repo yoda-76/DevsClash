@@ -132,7 +132,7 @@ app.post("/login",async(req,res)=>{
     const response={contest: data[0].contest, wallet:data[0].wallet,name:data[0].name, user_name:data[0].user_name, email:data[0].email}
       
     if(data[0].password === password){
-        res.json({msg:"true",user:data});
+        res.json({msg:"true",user:response});
     }else{
       res.json({msg:"wrong password"})
     }
@@ -207,7 +207,7 @@ app.post('/create',async(req,res)=>{
     console.log("choosen qs",questions)
     console.log(Q[Math.floor((Math.random() * 10) + 1)])
 
-    const cObj={...req.body,questions:questions, participants: [{id:req.body.id, solved: 0}]}
+    const cObj={...req.body,questions:questions, participants: [{user_name:req.body.user_name, solved: 0}]}
     const newObj=new contestObjModel(cObj);
     await newObj.save()
     res.json(cObj)
@@ -217,22 +217,29 @@ app.post('/create',async(req,res)=>{
 app.patch("/join", async (req, res) => {
     try {
       const roomId = req.body.roomId;
-      console.log("roomId",roomId)
-      const id=req.body.id
-      console.log("id",id)
+      console.log("roomId:",roomId)
+      const user_name=req.body.user_name
+      console.log("user_name:",user_name)
 
       var data1=await contestObjModel.find({id:roomId})
       console.log(data1)
 
-      data1=data1.filter((obj)=>obj.id===roomId)
-      console.log(data1)
       const result = await contestObjModel.updateOne(
         { id:roomId },
-        { $set: { participants: [...(data1[0].participants),{id:id, solved:Array(2).fill(0)}]} }
+        { $set: { participants: [...(data1[0].participants),{user_name:user_name, solved:Array(2).fill(0)}]} }
       );
       if (result.nModified === 0) {
         // If the document wasn't modified, it means it wasn't found
         return res.status(404).json({ msg: "Document not found" });
+      }
+      const user=await userObjectModel.find({user_name:user_name})
+      const result2 = await userObjectModel.updateOne(
+        { user_name:user_name },
+        { $set: { contest: [...(user[0].contest),roomId]} }
+      );
+      if (result2.nModified === 0) {
+        // If the document wasn't modified, it means it wasn't found
+        return res.status(404).json({ msg: "user not found" });
       }
       data1=await contestObjModel.find({id:roomId})
       return res.json(data1[0]);
