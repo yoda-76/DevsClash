@@ -243,75 +243,75 @@ app.patch("/join", async (req, res) => {
 
 
 
-// app.post("/python",async(req,res)=>{
-//     console.log(req.body.code)
-//     const id= req.body.id
-//     const roomId=req.body.roomId
-//     const Q=req.body.Q
+app.post("/python",async(req,res)=>{
+    console.log(req.body.code)
+    const id= req.body.id
+    const roomId=req.body.roomId
+    const Q=req.body.Q
 
-//     var data5=await contestObjModel.find({id:roomId})
-//       console.log(data5)
+    var data5=await contestObjModel.find({id:roomId})
+      console.log(data5)
 
-//     // var data5=await contestObjModel.find({id:roomId}).then(()=>{
-//     //   console.log(data5)
-//     // })
-//     // data5=data5.filter((obj)=>obj.id===roomId)
-//     // console.log(`
-//     // id=${id}
-//     // room id = ${roomId}
-//     // Q= ${Q}
-//     // data = ${data5}
-//     // `)
-//     fs.writeFileSync(`id${id}.py`, req.body.code);
+    // var data5=await contestObjModel.find({id:roomId}).then(()=>{
+    //   console.log(data5)
+    // })
+    // data5=data5.filter((obj)=>obj.id===roomId)
+    // console.log(`
+    // id=${id}
+    // room id = ${roomId}
+    // Q= ${Q}
+    // data = ${data5}
+    // `)
+    fs.writeFileSync(`id${id}.py`, req.body.code);
 
-//     let options = {
-//         mode: 'text',
-//         pythonOptions: ['-u'], 
-//         args: data5[0].questions[Number(Q)].p[0]
-//       };
+    let options = {
+        mode: 'text',
+        pythonOptions: ['-u'], 
+        args: data5[0].questions[Number(Q)].p[0]
+      };
       
-//       pythonshell.run(`id${id}.py`, options).then(messages=>{
-//          // if result is true then update participant-> solved in contest obj in db
-//     if (messages=="true"){
-//         console.log("inside")
+      pythonshell.run(`id${id}.py`, options).then(messages=>{
+         // if result is true then update participant-> solved in contest obj in db
+    if (messages=="true"){
+        console.log("inside")
         
-//         const t=async()=>{
-//             var data2=await contestObjModel.find({id:roomId})
-//             console.log(data2)
-//             const updatedPartcipants=data2[0].participants.map((p)=>{
-//                 if(p.id==id){
-//                     let solved=p.solved
-//                     console.log(Q)
-//                     solved[Number(Q)-1]=1
-//                     return {...p, solved:solved}
-//                 }
-//                 return p
-//             })
-//             console.log(updatedPartcipants[0].solved.length)
-//             const result = await contestObjModel.updateOne(
-//                 { id:roomId },
-//                 { $set: { participants: updatedPartcipants }}
-//               );
-//         }
-//         t()
-//         // checkWin(roomId,id)
-//     }
-//     //     //before sending check for winning condition
-//         res.json({msg:messages})//also send the updated contest obj
-//       });    
-// })
+        const t=async()=>{
+            var data2=await contestObjModel.find({id:roomId})
+            console.log(data2)
+            const updatedPartcipants=data2[0].participants.map((p)=>{
+                if(p.id==id){
+                    let solved=p.solved
+                    console.log(Q)
+                    solved[Number(Q)-1]=1
+                    return {...p, solved:solved}
+                }
+                return p
+            })
+            console.log(updatedPartcipants[0].solved.length)
+            const result = await contestObjModel.updateOne(
+                { id:roomId },
+                { $set: { participants: updatedPartcipants }}
+              );
+        }
+        t()
+        // checkWin(roomId,id)
+    }
+    //     //before sending check for winning condition
+        res.json({msg:messages})//also send the updated contest obj
+      });    
+})
 
-app.post("/compiler",function(req,res){
-  const data = req.body;
-  const code = data.code;
-  const input= data.input;
-  const envData = { OS : "windows" , cmd : "g++"};
-  compiler.compileCPP(envData , code , function (data) {
-    res.send(data);
-    //data.error = error message 
-    //data.output = output value
-});
-});
+// app.post("/compiler",function(req,res){
+//   const data = req.body;
+//   const code = data.code;
+//   const input= data.input;
+//   const envData = { OS : "windows" , cmd : "g++"};
+//   compiler.compileCPP(envData , code , function (data) {
+//     res.send(data);
+//     //data.error = error message 
+//     //data.output = output value
+// });
+// });
 app.listen(3000)
 
 
