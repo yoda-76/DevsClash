@@ -116,6 +116,16 @@ app.get("/",async(req,res)=>{
     const data=await contestObjModel.find({})
     res.json({result:data})
 })
+
+app.post("/mycontest", async(req,res)=>{
+  const user_name=req.body.user_name
+  const data=await userObjectModel.find({user_name})
+  const response={contest: data[0].contest, wallet:data[0].wallet,name:data[0].name, user_name:data[0].user_name, email:data[0].email}
+  console.log(response)
+  res.json(response)
+
+})
+
 app.post("/signin", async(req,res)=>{
     const data= req.body;
     const newobj = new userObjectModel({contest: [], wallet:0,name:data.name, user_name:data.user_name, password:data.password, email:data.email});
@@ -253,7 +263,7 @@ app.patch("/join", async (req, res) => {
 
 app.post("/python",async(req,res)=>{
     console.log(req.body.code)
-    const id= req.body.id
+    const user_name= req.body.user_name
     const roomId=req.body.roomId
     const Q=req.body.Q
 
@@ -287,7 +297,7 @@ app.post("/python",async(req,res)=>{
             var data2=await contestObjModel.find({id:roomId})
             console.log(data2)
             const updatedPartcipants=data2[0].participants.map((p)=>{
-                if(p.id==id){
+                if(p.user_name==user_name){
                     let solved=p.solved
                     console.log(Q)
                     solved[Number(Q)-1]=1
