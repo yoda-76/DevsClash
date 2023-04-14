@@ -91,7 +91,7 @@ const contestSchema=mongoose.Schema({
 })
 
 const userSchema=mongoose.Schema({
-  user_Name: String,
+  user_name: String,
   password: String,
   email: String,
   name: String,
@@ -118,7 +118,7 @@ app.get("/",async(req,res)=>{
 })
 app.post("/signin", async(req,res)=>{
     const data= req.body;
-    const newobj = new userObjectModel({...data, name:data.name, user_name:data.user_name, password:data.password, email:data.email});
+    const newobj = new userObjectModel({contest: [], wallet:0,name:data.name, user_name:data.user_name, password:data.password, email:data.email});
     await newobj.save();
     res.send("done");
 });
@@ -126,9 +126,10 @@ app.post("/signin", async(req,res)=>{
 app.post("/login",async(req,res)=>{
   const {user_name, password}=req.body;
   
-  const data = await userObjectModel.find({user_Name:user_name});
-  console.log("data",data);
+  const data = await userObjectModel.find({user_name:user_name});
+  // console.log("data",response);
   if(data[0]){
+    const response={contest: data[0].contest, wallet:data[0].wallet,name:data[0].name, user_name:data[0].user_name, email:data[0].email}
       
     if(data[0].password === password){
         res.json({msg:"true",user:data});
