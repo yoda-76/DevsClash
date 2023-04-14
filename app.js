@@ -6,7 +6,9 @@ const app=express()
 const mongoose=require('mongoose')
 const bodyParser=require('body-parser')
 const pythonshell=require("python-shell").PythonShell
-
+const compiler = require('compilex');
+const options = {stats : true}; //prints stats on console 
+compiler.init(options);
 
 app.use(bodyParser.json())
 app.use(cors())
@@ -27,7 +29,6 @@ Input:
 IPv4 address = 222.111.111.111
 Output: 1
     `,p:[[5555.555,0]]},
-
     {st:`Given a non-negative integer N. The task is to check if N is a power of 2. More formally, check if N can be expressed as 2x for some x.
 Example :
 Input: N = 1
@@ -72,7 +73,7 @@ Output: YES
 
 
 ]
-var contestSchema=mongoose.Schema({
+const contestSchema=mongoose.Schema({
     title: String,
     difficulty:String,
     duration : String,
@@ -89,8 +90,8 @@ var contestSchema=mongoose.Schema({
 
 })
 
-var userSchema=mongoose.Schema({
-  usereName: String,
+const userSchema=mongoose.Schema({
+  user_Name: String,
   password: String,
   email: String,
   name: String,
@@ -99,8 +100,8 @@ var userSchema=mongoose.Schema({
 
 })
 
-var contestObjModel=new mongoose.model('contestObjModel',contestSchema);
-var userObjModel=new mongoose.model('userObjModel',userSchema);
+const contestObjModel=new mongoose.model('contestObjModel',contestSchema);
+const userObjectModel=new mongoose.model('userObjModel',userSchema);
 
 
 mongoose.connect('mongodb+srv://yadvendras20:abcd1234@cluster0.qw0zi6d.mongodb.net/?retryWrites=true&w=majority').then(e=>{
@@ -112,55 +113,77 @@ mongoose.connect('mongodb+srv://yadvendras20:abcd1234@cluster0.qw0zi6d.mongodb.n
 
 
 app.get("/",async(req,res)=>{
-    var data=await contestObjModel.find({})
+    const data=await contestObjModel.find({})
     res.json({result:data})
 })
+app.post("/signin", async(req,res)=>{
+    const data= req.body;
+    const newobj = new userObjectModel({...data, name:data.name, user_name:data.user_name, password:data.password, email:data.email});
+    await newobj.save();
+    res.send("done");
+});
 
-const  checkWin =async(roomId,id)=>{
-    const data3=await contestObjModel.find({id:roomId})
-    console.log(data3[0].participants)
-    const p=data3[0].participants.filter((p)=>{
-        return p.id==id})
-    let count=0
-    p.map((n)=>{
-        if(n==1){
-            count=count+1
-        }
-    })
-    console.log(p)
-        if(count==data3[0].noOfQuestions){
+app.post("/login",async(req,res)=>{
+  const {user_name, password}=req.body;
+  
+  const data = await userObjectModel.find({user_name:user_name});
+  console.log(data);
+  if(data === null){
+      res.send({msg:"user not found"});
+  }
+  else{
+      if(data.password === password){
+          res.send({msg:"true",user:data});
+      }
+  }
+  res.send("done");
+});
+
+// const  checkWin =async(roomId,id)=>{
+//     const data=await contestObjModel.find({id:roomId})
+//     console.log(data[0].participants)
+//     const p=data[0].participants.filter((p)=>{
+//         return p.id==id})
+//     const count=0
+//     p.map((n)=>{
+//         if(n==1){
+//             count=count+1
+//         }
+//     })
+//     console.log(p)
+//         if(count==data[0].noOfQuestions){
             
 
 
-            // ...........
-            // app.patch("/winner", async (req, res) => {
-            //     try {
-            //       const roomId = req.body.roomId;
-            //       console.log("roomId",roomId)
-            //       const id=req.body.id
-            //       console.log("id",id)
+//             // ...........
+//             // app.patch("/winner", async (req, res) => {
+//             //     try {
+//             //       const roomId = req.body.roomId;
+//             //       console.log("roomId",roomId)
+//             //       const id=req.body.id
+//             //       console.log("id",id)
             
                   
-            //       const result = await contestObjModel.updateOne(
-            //         { id:roomId },
-            //         { $set: { winner: id} }
-            //       );
-            //       if (result.nModified === 0) {
-            //         // If the document wasn't modified, it means it wasn't found
-            //         return res.status(404).json({ msg: "Document not found" });
-            //       }
-            //       const data4=await contestObjModel.find({id:roomId})
-            //       return res.json(data4[0]);
-            //     } catch (error) {
-            //       console.error(error);
-            //       return res.status(500).json({ msg: "Internal Server Error" });
-            //     }
-            //   });
-            // ............
+//             //       const result = await contestObjModel.updateOne(
+//             //         { id:roomId },
+//             //         { $set: { winner: id} }
+//             //       );
+//             //       if (result.nModified === 0) {
+//             //         // If the document wasn't modified, it means it wasn't found
+//             //         return res.status(404).json({ msg: "Document not found" });
+//             //       }
+//             //       const data4=await contestObjModel.find({id:roomId})
+//             //       return res.json(data4[0]);
+//             //     } catch (error) {
+//             //       console.error(error);
+//             //       return res.status(500).json({ msg: "Internal Server Error" });
+//             //     }
+//             //   });
+//             // ............
         
         
-        }
-}
+//         }
+// }
 
 
 
@@ -168,35 +191,24 @@ const  checkWin =async(roomId,id)=>{
 
 
 
-app.post('/send',async(req,res)=>{
+app.post('/create',async(req,res)=>{
     console.log(req.body)
     //generate questions dinamically
-    let questions=[]
+    const questions=[]
     for(let i=0;i<Number(req.body.noOfQuestions);i++){
         questions[i]=Q[Math.floor((Math.random() * 10) + 1)]
         
-        console.log("insidi",i,questions[i])
-        
+        console.log("insidi",i,questions[i])    
     }
     console.log("choosen qs",questions)
     console.log(Q[Math.floor((Math.random() * 10) + 1)])
 
-    var cObj={...req.body,questions:questions, participants: [{id:req.body.id, solved: 0}]}
-    var newObj=new contestObjModel(cObj);
+    const cObj={...req.body,questions:questions, participants: [{id:req.body.id, solved: 0}]}
+    const newObj=new contestObjModel(cObj);
     await newObj.save()
     res.json(cObj)
 })
 
-// app.patch("/join",async(req,res)=>{
-//     id=req.body.id
-
-//     var s=await contestObjModel.updateOne({id:id},{ $set:{participants:{id:"temp-id"}}})
-//     console.log(id)
-//     res.json({"msg":"good"})
-// })
-
-
-// app.patch("/submited")
 
 app.patch("/join", async (req, res) => {
     try {
@@ -228,65 +240,73 @@ app.patch("/join", async (req, res) => {
 
 
 
-app.post("/python",async(req,res)=>{
-    console.log(req.body.code)
-    const id= req.body.id
-    const roomId=req.body.roomId
-    const Q=req.body.Q
+// app.post("/python",async(req,res)=>{
+//     console.log(req.body.code)
+//     const id= req.body.id
+//     const roomId=req.body.roomId
+//     const Q=req.body.Q
 
-    var data5=await contestObjModel.find({id:roomId})
-      console.log(data5)
+//     var data5=await contestObjModel.find({id:roomId})
+//       console.log(data5)
 
-    // var data5=await contestObjModel.find({id:roomId}).then(()=>{
-    //   console.log(data5)
-    // })
-    // data5=data5.filter((obj)=>obj.id===roomId)
-    console.log(`
-    id=${id}
-    room id = ${roomId}
-    Q= ${Q}
-    data = ${data5}
-    `)
-    fs.writeFileSync(`id${id}.py`, req.body.code);
+//     // var data5=await contestObjModel.find({id:roomId}).then(()=>{
+//     //   console.log(data5)
+//     // })
+//     // data5=data5.filter((obj)=>obj.id===roomId)
+//     // console.log(`
+//     // id=${id}
+//     // room id = ${roomId}
+//     // Q= ${Q}
+//     // data = ${data5}
+//     // `)
+//     fs.writeFileSync(`id${id}.py`, req.body.code);
 
-    let options = {
-        mode: 'text',
-        pythonOptions: ['-u'], 
-        args: data5[0].questions[Number(Q)].p[0]
-      };
+//     let options = {
+//         mode: 'text',
+//         pythonOptions: ['-u'], 
+//         args: data5[0].questions[Number(Q)].p[0]
+//       };
       
-      pythonshell.run(`id${id}.py`, options).then(messages=>{
-         // if result is true then update participant-> solved in contest obj in db
-    if (messages=="true"){
-        console.log("inside")
+//       pythonshell.run(`id${id}.py`, options).then(messages=>{
+//          // if result is true then update participant-> solved in contest obj in db
+//     if (messages=="true"){
+//         console.log("inside")
         
-        const t=async()=>{
-            var data2=await contestObjModel.find({id:roomId})
-            console.log(data2)
-            const updatedPartcipants=data2[0].participants.map((p)=>{
-                if(p.id==id){
-                    let solved=p.solved
-                    console.log(Q)
-                    solved[Number(Q)-1]=1
-                    return {...p, solved:solved}
-                }
-                return p
-            })
-            console.log(updatedPartcipants[0].solved.length)
-            const result = await contestObjModel.updateOne(
-                { id:roomId },
-                { $set: { participants: updatedPartcipants }}
-              );
-        }
-        t()
-        checkWin(roomId,id)
-    }
-    //     //before sending check for winning condition
-        res.json({msg:messages})//also send the updated contest obj
-      });    
-})
+//         const t=async()=>{
+//             var data2=await contestObjModel.find({id:roomId})
+//             console.log(data2)
+//             const updatedPartcipants=data2[0].participants.map((p)=>{
+//                 if(p.id==id){
+//                     let solved=p.solved
+//                     console.log(Q)
+//                     solved[Number(Q)-1]=1
+//                     return {...p, solved:solved}
+//                 }
+//                 return p
+//             })
+//             console.log(updatedPartcipants[0].solved.length)
+//             const result = await contestObjModel.updateOne(
+//                 { id:roomId },
+//                 { $set: { participants: updatedPartcipants }}
+//               );
+//         }
+//         t()
+//         // checkWin(roomId,id)
+//     }
+//     //     //before sending check for winning condition
+//         res.json({msg:messages})//also send the updated contest obj
+//       });    
+// })
 
-
+app.post("/compiler",function(req,res){
+  const data = req.body;
+  const code = data.code;
+  const input= data.input;
+  const envData = { OS : "windows" , cmd : "g++"};
+  compiler.compilePythonWithInput( envData , code , input ,  function(data){
+        res.send(data);        
+    });
+});
 
 app.listen(3000)
 

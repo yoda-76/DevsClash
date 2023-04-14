@@ -1,0 +1,1 @@
+a=input()/nb=input()/nprint(a+b)
