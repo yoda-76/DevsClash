@@ -280,7 +280,7 @@ app.post("/python",async(req,res)=>{
     // Q= ${Q}
     // data = ${data5}
     // `)
-    fs.writeFileSync(`id${id}.py`, req.body.code);
+    fs.writeFileSync(`id${user_name}.py`, req.body.code);
 
     let options = {
         mode: 'text',
@@ -288,7 +288,7 @@ app.post("/python",async(req,res)=>{
         args: data5[0].questions[Number(Q)].p[0]
       };
       
-      pythonshell.run(`id${id}.py`, options).then(messages=>{
+      pythonshell.run(`id${user_name}.py`, options).then(messages=>{
          // if result is true then update participant-> solved in contest obj in db
     if (messages=="true"){
         console.log("inside")
