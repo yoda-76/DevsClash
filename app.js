@@ -263,7 +263,7 @@ app.patch("/join", async (req, res) => {
 
 app.patch("/python",async(req,res)=>{
     console.log(req.body.code)
-    const user_name= req.body.user_name
+    var user_name= req.body.user_name
     const roomId=req.body.roomId
     const Q=req.body.Q
 
@@ -274,12 +274,12 @@ app.patch("/python",async(req,res)=>{
     //   console.log(data5)
     // })
     // data5=data5.filter((obj)=>obj.id===roomId)
-    // console.log(`
-    // id=${id}
-    // room id = ${roomId}
-    // Q= ${Q}
-    // data = ${data5}
-    // `)
+    console.log(`
+    id=${id}
+    room id = ${roomId}
+    Q= ${Q}
+    data = ${data5}
+    `)
     fs.writeFileSync(`id${user_name}.py`, req.body.code);
 
     let options = {
@@ -291,32 +291,45 @@ app.patch("/python",async(req,res)=>{
       pythonshell.run(`id${user_name}.py`, options).then(messages=>{
          // if result is true then update participant-> solved in contest obj in db
     if (messages=="True"){
-        console.log("inside")
         
-        const t=async()=>{
-            var data2=await contestObjModel.find({id:roomId})
-            console.log("\n inside the ",data2)
-            const   updatedPartcipants= data2[0].participants.map(async (p)=>{
-                if(p.user_name==user_name){
-                    let solved=p.solved
-                    console.log(Q)
-                    const currTime=new Date()
-                    currTime= await currTime.getTime()
-                    console.log(currTime)
-                    solved[Number(Q)]=currTime
-                    return {...p, solved:solved}
-                }
-                return p
-            })
-            
+      const t =async (user_name, Q)=>{
+              data5=await contestObjModel.find({id:roomId})
+              // console.log("user:",user_name)
+              // console.log("contest:",data5)
+              // console.log("participants:",data5[0].participants)
 
-            const result = await contestObjModel.updateOne(
-                { id:roomId },
-                { $set: { participants: updatedPartcipants }}
-              );
-        }
-        t()
-        // checkWin(roomId,id)
+
+              // const updatedPartcipants=[]
+              // data5[0].participants.map((p)=>{
+              //   if(p.user_name==user_name){
+              //     // console.log("user found", p)
+              //     console.log("Q",Q)
+              //     p.solved[Q]="current time"
+              //   }
+              // })
+
+              // data5.map((p)=>{
+              //   const solved=p.solved
+              //   if(p.user_name==user_name){
+
+              //     var currdate=new Date()
+              //     currdate=curdate.getTime()
+
+              //     solved[Q] = currdate
+              //     console.log("so;ved:",solved)
+              //   }
+              //   updatedPartcipants.push({solved, user_name:p.user_name})
+              // })
+              // console.log("up",updatedPartcipants)
+
+
+              // const result = await contestObjModel.updateOne(
+              //   { id:roomId },
+              //   { $set: { participants: updatedPartcipants }}
+              // );
+            } 
+            // t(user_name, Q)
+ 
     }
     //     //before sending check for winning condition
         res.json({msg:messages})//also send the updated contest obj
