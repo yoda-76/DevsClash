@@ -261,7 +261,7 @@ app.patch("/join", async (req, res) => {
 
 
 
-app.post("/python",async(req,res)=>{
+app.patch("/python",async(req,res)=>{
     console.log(req.body.code)
     const user_name= req.body.user_name
     const roomId=req.body.roomId
