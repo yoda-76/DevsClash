@@ -86,7 +86,8 @@ const contestSchema=mongoose.Schema({
     topic: String,
     noOfQuestions:Number,
     participants:Object,
-    winner:String
+    winner:String,
+    entryfee:Number
 
 })
 
@@ -115,6 +116,30 @@ mongoose.connect('mongodb+srv://yadvendras20:abcd1234@cluster0.qw0zi6d.mongodb.n
 app.get("/",async(req,res)=>{
     const data=await contestObjModel.find({})
     res.json({result:data})
+})
+
+app.patch("/addmoney",async(req,res)=>{
+  const user_name=req.body.user_name
+  const addedmoney=req.body.addedMoney
+  const data=await userObjectModel.find({user_name})
+  const result = await userObjectModel.updateOne(
+    { user_name:user_name },
+    { $set: { wallet: data[0].wallet+ addedmoney }}
+  );
+  if (result.nModified === 0) {
+    // If the document wasn't modified, it means it wasn't found
+    return res.status(404).json({ msg: "Document not found" });
+  }else{
+    res.send("updated")
+  }
+})
+
+app.post("/leaderboard",async(req,res)=>{
+    const data=await contestObjModel.find({id:req.body.roomId})
+    var p=[]
+    data[0].participants.map((i)=>{
+      p.push(Math.max(...i.solved))
+    })
 })
 
 app.post("/mycontest", async(req,res)=>{
