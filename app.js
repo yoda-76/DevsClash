@@ -59,16 +59,16 @@ Output: YES
             Input: N = 4
             Output: 5
               `,p:[[17,35]]},
-              {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
+              {st:`write a program to perform devision and return rimender.
               Example :  
-              Input: N = 4
-              Output: 5
-                `,p:[[17,35]]},
-                {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
+              Input: n=5, m=4
+              Output: 1
+                `,p:[[5,4,1],[12,3,0],[9,2,1]]},
+                {st:`Write a program to multiply 2 integer.
                 Example :  
-                Input: N = 4
-                Output: 5
-                  `,p:[[17,35]]}
+                Input: N = 4 , m=5
+                Output: 20
+                  `,p:[[4,5,20],[3,2,6],[2,2,4]]}
     
 
 
@@ -217,7 +217,7 @@ app.post('/create',async(req,res)=>{
     console.log("choosen qs",questions)
     console.log(Q[Math.floor((Math.random() * 10) + 1)])
 
-    const cObj={...req.body,questions:questions, participants: [{user_name:req.body.user_name, solved: []}]}
+    const cObj={...req.body,questions:questions, participants: [{user_name:req.body.user_name, solved: Array(req.body.noOfQuestions).fill(0)}]}
     const newObj=new contestObjModel(cObj);
     await newObj.save()
     res.json(cObj)
@@ -236,7 +236,7 @@ app.patch("/join", async (req, res) => {
 
       const result = await contestObjModel.updateOne(
         { id:roomId },
-        { $set: { participants: [...(data1[0].participants),{user_name:user_name, solved:Array(2).fill(0)}]} }
+        { $set: { participants: [...(data1[0].participants),{user_name:user_name, solved:Array(data1[0].noOfQuestions).fill(0)}]} }
       );
       if (result.nModified === 0) {
         // If the document wasn't modified, it means it wasn't found
@@ -294,19 +294,25 @@ app.patch("/python",async(req,res)=>{
         
       const t =async (user_name, Q)=>{
               data5=await contestObjModel.find({id:roomId})
-              // console.log("user:",user_name)
-              // console.log("contest:",data5)
-              // console.log("participants:",data5[0].participants)
+              console.log("user:",user_name)
+              console.log("contest:",data5)
+              console.log("participants:",data5[0].participants)
 
 
-              // const updatedPartcipants=[]
-              // data5[0].participants.map((p)=>{
-              //   if(p.user_name==user_name){
-              //     // console.log("user found", p)
-              //     console.log("Q",Q)
-              //     p.solved[Q]="current time"
-              //   }
-              // })
+              var updatedPartcipants=[]
+              data5[0].participants.map((p)=>{
+                if(p.user_name==user_name){
+                  // console.log("user found", p)
+                  const d = new Date()
+                  const time=d.getTime()
+                  console.log("Q",Q)
+                  console.log(p.solved)
+                  p.solved[Q]=time
+                }
+                updatedPartcipants.push({user_name, solved:p.solved})
+              })
+              
+
 
               // data5.map((p)=>{
               //   const solved=p.solved
@@ -323,12 +329,13 @@ app.patch("/python",async(req,res)=>{
               // console.log("up",updatedPartcipants)
 
 
-              // const result = await contestObjModel.updateOne(
-              //   { id:roomId },
-              //   { $set: { participants: updatedPartcipants }}
-              // );
+              const result = await contestObjModel.updateOne(
+                { id:roomId },
+                { $set: { participants: updatedPartcipants }}
+              );
             } 
             // t(user_name, Q)
+            t(user_name, Q)
  
     }
     //     //before sending check for winning condition
