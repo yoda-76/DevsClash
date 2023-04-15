@@ -300,12 +300,15 @@ app.post("/python",async(req,res)=>{
                 if(p.user_name==user_name){
                     let solved=p.solved
                     console.log(Q)
-                    solved[Number(Q)]=1
+                    const currTime=new Date()
+                    currTime=currTime.getTime()
+                    solved[Number(Q)]=currTime
                     return {...p, solved:solved}
                 }
                 return p
             })
-            console.log(updatedPartcipants[0].solved.length)
+            
+
             const result = await contestObjModel.updateOne(
                 { id:roomId },
                 { $set: { participants: updatedPartcipants }}
