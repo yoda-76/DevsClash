@@ -120,7 +120,12 @@ app.get("/",async(req,res)=>{
 app.post("/mycontest", async(req,res)=>{
   const user_name=req.body.user_name
   const data=await userObjectModel.find({user_name})
-  const response={contest: data[0].contest, wallet:data[0].wallet,name:data[0].name, user_name:data[0].user_name, email:data[0].email}
+  const data2=await contestObjModel.find({})
+  const filteredContest=data2.filter((c)=>{
+    return data[0].contest.map((i)=>{return c.id==i})
+  })
+
+  const response={contest:filteredContest, wallet:data[0].wallet,name:data[0].name, user_name:data[0].user_name, email:data[0].email}
   console.log(response)
   res.json(response)
 
