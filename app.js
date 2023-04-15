@@ -156,6 +156,10 @@ app.post("/mycontest", async(req,res)=>{
 
 })
 
+app.post("/getuser",async(req,res)=>{
+  res.json((await userObjectModel.find({user_name:req.body.user_name}))[0])
+})
+
 app.post("/signin", async(req,res)=>{
     const data= req.body;
     const newobj = new userObjectModel({contest: [], wallet:0,name:data.name, user_name:data.user_name, password:data.password, email:data.email});
