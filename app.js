@@ -296,12 +296,12 @@ app.patch("/python",async(req,res)=>{
         const t=async()=>{
             var data2=await contestObjModel.find({id:roomId})
             console.log("\n inside the ",data2)
-            const updatedPartcipants=data2[0].participants.map((p)=>{
+            const   updatedPartcipants= data2[0].participants.map(async (p)=>{
                 if(p.user_name==user_name){
                     let solved=p.solved
                     console.log(Q)
                     const currTime=new Date()
-                    currTime=currTime.getTime()
+                    currTime= await currTime.getTime()
                     console.log(currTime)
                     solved[Number(Q)]=currTime
                     return {...p, solved:solved}
