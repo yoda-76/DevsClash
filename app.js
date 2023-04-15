@@ -255,7 +255,7 @@ app.post('/create',async(req,res)=>{
     const cObj={...req.body,questions:questions, participants: [{user_name:req.body.user_name, solved: Array(req.body.noOfQuestions).fill(0)}]}
     console.log("cobj",cObj)
     //money deducted
-    const data= await userObjectModel.find({user_name})
+    const data= await userObjectModel.find({user_name:req.body.user_name})
     const result = await userObjectModel.updateOne(
       { user_name:user_name },
       { $set: { wallet: Number(data[0].wallet)- entryfee }}
