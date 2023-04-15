@@ -257,7 +257,7 @@ app.post('/create',async(req,res)=>{
     //money deducted
     const data= await userObjectModel.find({user_name:req.body.user_name})
     const result = await userObjectModel.updateOne(
-      { user_name:user_name },
+      { user_name:req.body.user_name },
       { $set: { wallet: Number(data[0].wallet)- entryfee }}
     );
     if (result.nModified === 0) {
