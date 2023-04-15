@@ -302,6 +302,7 @@ app.post("/python",async(req,res)=>{
                     console.log(Q)
                     const currTime=new Date()
                     currTime=currTime.getTime()
+                    console.log(currTime)
                     solved[Number(Q)]=currTime
                     return {...p, solved:solved}
                 }
