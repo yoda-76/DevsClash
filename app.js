@@ -124,7 +124,7 @@ app.patch("/addmoney",async(req,res)=>{
   const data=await userObjectModel.find({user_name})
   const result = await userObjectModel.updateOne(
     { user_name:user_name },
-    { $set: { wallet: data[0].wallet+ addedmoney }}
+    { $set: { wallet: Number(data[0].wallet)+ addedmoney }}
   );
   if (result.nModified === 0) {
     // If the document wasn't modified, it means it wasn't found
@@ -253,7 +253,7 @@ app.post('/create',async(req,res)=>{
     //money deducted
     const result = await userObjectModel.updateOne(
       { user_name:user_name },
-      { $set: { wallet: data[0].wallet- entryfee }}
+      { $set: { wallet: Number(data[0].wallet)- entryfee }}
     );
     if (result.nModified === 0) {
       // If the document wasn't modified, it means it wasn't found
@@ -271,6 +271,7 @@ app.post('/create',async(req,res)=>{
 
 
 app.patch("/join", async (req, res) => {
+  var entryfee=40;
     try {
       const roomId = req.body.roomId;
       console.log("roomId:",roomId)
@@ -279,6 +280,19 @@ app.patch("/join", async (req, res) => {
 
       var data1=await contestObjModel.find({id:roomId})
       console.log(data1)
+
+      //money deducted
+    const result1 = await userObjectModel.updateOne(
+      { user_name:user_name },
+      { $set: { wallet: Number(data[0].wallet)- entryfee }}
+    );
+    if (result1.nModified === 0) {
+      // If the document wasn't modified, it means it wasn't found
+      return res.status(404).json({ msg: "Document not found" });
+    }else{
+      res.send("updated")}
+
+      //contest data updated
 
       const result = await contestObjModel.updateOne(
         { id:roomId },
