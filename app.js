@@ -13,52 +13,17 @@ compiler.init(options);
 app.use(bodyParser.json())
 app.use(cors())
 
-var Q=[{st:`Given a positive integer n, find the nth fibonacci number. Since the answer can be very large, return the answer modulo 1000000007
+var Q=[{st:`write a program to add two integer.
 Example 
-Input: n = 2
-Output: 1
-    `,p:[[89,544858368]]},
-    {st:`Write a program to Validate an IPv4 Address.
-According to Wikipedia, IPv4 addresses are canonically represented in dot-decimal notation, which consists of four decimal numbers, each ranging from 0 to 255, separated by dots, e.g., 172.16.254.1
-A valid IPv4 Address is of the form x1.x2.x3.x4 where 0 <= (x1, x2, x3, x4) <= 255.
-Thus, we can write the generalized form of an IPv4 address as (0-255).(0-255).(0-255).(0-255).
-Note: Here we are considering numbers only from 0 to 255 and any additional leading zeroes will be considered invalid.
-Your task is to complete the function isValid which returns 1 if the given IPv4 address is valid else returns 0. The function takes the IPv4 address as the only argument in the form of string.
+Input: a = 1 , b = 2
+Output: 3
+    `,p:[[4, 2, 6],[4, 6, 8],[5, 9, 14]]},
+    {st:`find the diffrence of two numbers
 Example 
 Input:
-IPv4 address = 222.111.111.111
-Output: 1
-    `,p:[[5555.555,0]]},
-    {st:`Given a non-negative integer N. The task is to check if N is a power of 2. More formally, check if N can be expressed as 2x for some x.
-Example :
-Input: N = 1
-Output: YES
-    `,p:[[98,"NO"]]},
-    {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
-    Example :  
-    Input: N = 4
-    Output: 5
-      `,p:[[17,35]]},
-      {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
-      Example :  
-      Input: N = 4
-      Output: 5
-        `,p:[[17,35]]},
-        {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
-        Example :  
-        Input: N = 4
-        Output: 5
-          `,p:[[17,35]]},
-          {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
-          Example :  
-          Input: N = 4
-          Output: 5
-            `,p:[[17,35]]},
-            {st:`You are given a number N. Find the total count of set bits for all numbers from 1 to N(both inclusive).
-            Example :  
-            Input: N = 4
-            Output: 5
-              `,p:[[17,35]]},
+a = 4, b = 2.
+Output: 2
+    `,p:[[4 ,0 ,4],[3, 3,0],[5,3,2]]},
               {st:`write a program to perform devision and return rimender.
               Example :  
               Input: n=5, m=4
@@ -252,7 +217,7 @@ app.post('/create',async(req,res)=>{
     console.log("choosen qs",questions)
     console.log(Q[Math.floor((Math.random() * 10) + 1)])
 
-    const cObj={...req.body,questions:questions, participants: [{user_name:req.body.user_name, solved: Array(req.body.noOfQuestions).fill(0)}]}
+    const cObj={...req.body,questions:questions, participants: [{user_name:req.body.user_name,noOfQuestionsSolved:0, solved: Array(req.body.noOfQuestions).fill(0)}]}
     console.log("cobj",cObj)
     //money deducted
     const data= await userObjectModel.find({user_name:req.body.user_name})
@@ -301,7 +266,7 @@ app.patch("/join", async (req, res) => {
 
       const result = await contestObjModel.updateOne(
         { id:roomId },
-        { $set: { participants: [...(data1[0].participants),{user_name:user_name, solved:Array(data1[0].noOfQuestions).fill(0)}]} }
+        { $set: { participants: [...(data1[0].participants),{user_name:user_name,noOfQuestionsSolved:0, solved:Array(data1[0].noOfQuestions).fill(0)}]} }
       );
       if (result.nModified === 0) {
         // If the document wasn't modified, it means it wasn't found
@@ -373,7 +338,7 @@ app.patch("/python",async(req,res)=>{
                   console.log("Q",Q)
                   console.log(p.solved)
                   p.solved[Q]=time
-                }
+                  p.noOfQuestionsSolved++                }
                 updatedPartcipants.push({user_name, solved:p.solved})
               })
               
