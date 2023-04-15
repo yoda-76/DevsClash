@@ -103,8 +103,38 @@ app.post("/leaderboard",async(req,res)=>{
     const data=await contestObjModel.find({id:req.body.roomId})
     var p=[]
     data[0].participants.map((i)=>{
-      p.push(Math.max(...i.solved))
+      p.push({user_name:i.user_name,noOfQuestionsSolved:i.noOfQuestionsSolved, solved: Math.max(...i.solved)})
     })
+    //sortin on basis of number of questions
+
+    
+
+
+    //..................
+    function bubbleSort(arr){
+
+      //Outer pass
+      for(let i = 0; i < arr.length; i++){
+  
+          //Inner pass
+          for(let j = 0; j < arr.length - i - 1; j++){
+  
+              //Value comparison using ascending order
+  
+              if(arr[j + 1].noOfQuestionsSolved < arr[j].noOfQuestionsSolved){
+  
+                  //Swapping
+                  [arr[j + 1],arr[j]] = [arr[j],arr[j + 1]]
+              }
+          }
+      };
+      return arr;
+  };
+  console.log(p)
+  bubbleSort(p)
+  console.log(p)
+
+    //...................
 })
 
 app.post("/mycontest", async(req,res)=>{
@@ -210,7 +240,7 @@ app.post('/create',async(req,res)=>{
     //generate questions dinamically
     const questions=[]
     for(let i=0;i<Number(req.body.noOfQuestions);i++){
-        questions[i]=Q[Math.floor((Math.random() * 10) + 1)]
+        questions[i]=Q[Math.floor((Math.random() * 4) + 1)]
         
         console.log("insidi",i,questions[i])    
     }
