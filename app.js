@@ -290,7 +290,7 @@ app.post("/python",async(req,res)=>{
       
       pythonshell.run(`id${user_name}.py`, options).then(messages=>{
          // if result is true then update participant-> solved in contest obj in db
-    if (messages=="true"){
+    if (messages=="True"){
         console.log("inside")
         
         const t=async()=>{
