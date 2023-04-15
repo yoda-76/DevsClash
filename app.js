@@ -217,7 +217,7 @@ app.post('/create',async(req,res)=>{
     console.log("choosen qs",questions)
     console.log(Q[Math.floor((Math.random() * 10) + 1)])
 
-    const cObj={...req.body,questions:questions, participants: [{user_name:req.body.user_name, solved: 0}]}
+    const cObj={...req.body,questions:questions, participants: [{user_name:req.body.user_name, solved: []}]}
     const newObj=new contestObjModel(cObj);
     await newObj.save()
     res.json(cObj)
