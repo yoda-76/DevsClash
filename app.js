@@ -263,8 +263,7 @@ app.post('/create',async(req,res)=>{
     if (result.nModified === 0) {
       // If the document wasn't modified, it means it wasn't found
       return res.status(404).json({ msg: "Document not found" });
-    }else{
-      res.send("updated")}
+    }
 
 
       //contest created
@@ -296,8 +295,7 @@ app.patch("/join", async (req, res) => {
     if (result1.nModified === 0) {
       // If the document wasn't modified, it means it wasn't found
       return res.status(404).json({ msg: "Document not found" });
-    }else{
-      res.send("updated")}
+    }
 
       //contest data updated
 
