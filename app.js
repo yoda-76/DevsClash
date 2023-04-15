@@ -89,7 +89,7 @@ app.patch("/addmoney",async(req,res)=>{
   const data=await userObjectModel.find({user_name})
   const result = await userObjectModel.updateOne(
     { user_name:user_name },
-    { $set: { wallet: Number(data[0].wallet)+ addedmoney }}
+    { $set: { wallet: Number(data[0].wallet)+ Number(addedmoney) }}
   );
   if (result.nModified === 0) {
     // If the document wasn't modified, it means it wasn't found
