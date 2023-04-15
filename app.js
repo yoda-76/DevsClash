@@ -295,12 +295,12 @@ app.post("/python",async(req,res)=>{
         
         const t=async()=>{
             var data2=await contestObjModel.find({id:roomId})
-            console.log(data2)
+            console.log("\n inside the ",data2)
             const updatedPartcipants=data2[0].participants.map((p)=>{
                 if(p.user_name==user_name){
                     let solved=p.solved
                     console.log(Q)
-                    solved[Number(Q)-1]=1
+                    solved[Number(Q)]=1
                     return {...p, solved:solved}
                 }
                 return p
