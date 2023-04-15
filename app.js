@@ -134,6 +134,8 @@ app.post("/leaderboard",async(req,res)=>{
   bubbleSort(p)
   console.log(p)
 
+  res.json(p)
+
     //...................
 })
 
