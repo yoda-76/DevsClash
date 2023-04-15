@@ -236,6 +236,7 @@ app.post("/login",async(req,res)=>{
 
 
 app.post('/create',async(req,res)=>{
+    const entryfee=40;
     console.log(req.body)
     //generate questions dinamically
     const questions=[]
@@ -249,8 +250,22 @@ app.post('/create',async(req,res)=>{
 
     const cObj={...req.body,questions:questions, participants: [{user_name:req.body.user_name, solved: Array(req.body.noOfQuestions).fill(0)}]}
     console.log("cobj",cObj)
+    //money deducted
+    const result = await userObjectModel.updateOne(
+      { user_name:user_name },
+      { $set: { wallet: data[0].wallet- entryfee }}
+    );
+    if (result.nModified === 0) {
+      // If the document wasn't modified, it means it wasn't found
+      return res.status(404).json({ msg: "Document not found" });
+    }else{
+      res.send("updated")}
+
+
+      //contest created
     const newObj=new contestObjModel(cObj);
     await newObj.save()
+
     res.json(cObj)
 })
 
