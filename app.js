@@ -242,7 +242,7 @@ app.post('/create',async(req,res)=>{
     //generate questions dinamically
     const questions=[]
     for(let i=0;i<Number(req.body.noOfQuestions);i++){
-        questions[i]=Q[Math.floor((Math.random() * 3) + 1)]
+        questions[i]=Q[Math.floor((Math.random() * 4) + 1)]
         
         console.log("insidi",i,questions[i])    
     }
