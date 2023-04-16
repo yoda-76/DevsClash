@@ -384,7 +384,7 @@ app.patch("/python",async(req,res)=>{
               //     currdate=curdate.getTime()
 
               //     solved[Q] = currdate
-              //     console.log("so;ved:",solved)
+              //     console.log("solved:",solved)
               //   }
               //   updatedPartcipants.push({solved, user_name:p.user_name})
               // })
