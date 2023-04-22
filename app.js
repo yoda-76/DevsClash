@@ -282,43 +282,52 @@ app.patch("/join", async (req, res) => {
       var data1=await contestObjModel.find({id:roomId})
       console.log(data1)
 
-      //money deducted
-    const data= await userObjectModel.find({user_name})
+      // if user doesnt exixt
+      const loggedInUser=data1[0].participants.filter((p)=>p.user_name==user_name)
+      if(!loggedInUser[0]){
+          //money deducted
+      const data= await userObjectModel.find({user_name})
 
-    const result1 = await userObjectModel.updateOne(
-      { user_name:user_name },
-      { $set: { wallet: Number(data[0].wallet)- entryfee }}
-    );
-    if (result1.nModified === 0) {
-      // If the document wasn't modified, it means it wasn't found
-      return res.status(404).json({ msg: "Document not found" });
-    }
-
-      //contest data updated
-
-      const result = await contestObjModel.updateOne(
-        { id:roomId },
-        { $set: { participants: [...(data1[0].participants),{user_name:user_name,noOfQuestionsSolved:0, solved:Array(data1[0].noOfQuestions).fill(0)}]} }
+      const result1 = await userObjectModel.updateOne(
+        { user_name:user_name },
+        { $set: { wallet: Number(data[0].wallet)- entryfee }}
       );
-      if (result.nModified === 0) {
+      if (result1.nModified === 0) {
         // If the document wasn't modified, it means it wasn't found
         return res.status(404).json({ msg: "Document not found" });
       }
-      const user=await userObjectModel.find({user_name:user_name})
-      const result2 = await userObjectModel.updateOne(
-        { user_name:user_name },
-        { $set: { contest: [...(user[0].contest),roomId]} }
-      );
-      if (result2.nModified === 0) {
-        // If the document wasn't modified, it means it wasn't found
-        return res.status(404).json({ msg: "user not found" });
+
+        //contest data updated
+
+        const result = await contestObjModel.updateOne(
+          { id:roomId },
+          { $set: { participants: [...(data1[0].participants),{user_name:user_name,noOfQuestionsSolved:0, solved:Array(data1[0].noOfQuestions).fill(0)}]} }
+        );
+        if (result.nModified === 0) {
+          // If the document wasn't modified, it means it wasn't found
+          return res.status(404).json({ msg: "Document not found" });
+        }
+        const user=await userObjectModel.find({user_name:user_name})
+        const result2 = await userObjectModel.updateOne(
+          { user_name:user_name },
+          { $set: { contest: [...(user[0].contest),roomId]} }
+        );
+        if (result2.nModified === 0) {
+          // If the document wasn't modified, it means it wasn't found
+          return res.status(404).json({ msg: "user not found" });
+        }
+        data1=await contestObjModel.find({id:roomId})
+        return res.json(data1[0]);
+      } 
+      else{
+        res.json(data1[0]);
       }
-      data1=await contestObjModel.find({id:roomId})
-      return res.json(data1[0]);
-    } catch (error) {
+    }catch (error) {
       console.error(error);
       return res.status(500).json({ msg: "Internal Server Error" });
     }
+      
+
   });
 
 
