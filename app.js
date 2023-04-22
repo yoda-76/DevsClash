@@ -102,36 +102,54 @@ app.patch("/addmoney",async(req,res)=>{
   }
 })
 
+
 app.post("/leaderboard",async(req,res)=>{
-    const data=await contestObjModel.find({id:req.body.roomId})
-    var p=[]
-    data[0].participants.map((i)=>{
-      p.push({user_name:i.user_name,noOfQuestionsSolved:i.noOfQuestionsSolved, solved: Math.max(...i.solved)})
-    })
+  const data=await contestObjModel.find({id:req.body.roomId})
+  var p=[]
+  data[0].participants.map((i)=>{
+    p.push({user_name:i.user_name,noOfQuestionsSolved:i.noOfQuestionsSolved, solved: Math.max(...i.solved)})
+  })
 
-    
-    //sortin on basis of number of questions
-
-    
-    //..................
-    function bubbleSort(arr){
-      for(let i = 0; i < arr.length; i++){     
-          for(let j = 0; j < arr.length - i - 1; j++){
-              if(arr[j + 1].noOfQuestionsSolved > arr[j].noOfQuestionsSolved){
-                  [arr[j + 1],arr[j]] = [arr[j],arr[j + 1]]
-              }
-          }
-      };
-      return arr;
-  };
-  console.log(p)
-  bubbleSort(p)
-  console.log(p)
-
+  //sortin on basis of number of time increasing order
+  p.sort((a,b) => {return b.solved - a.solved});
+  //sorting on the basis or number of questions in decreasing order
+  p.sort((a,b) => {return b.noOfQuestionsSolved - a.noOfQuestionsSolved});
   res.json(p)
 
-    //...................
+  //...................
 })
+
+
+// app.post("/leaderboard",async(req,res)=>{
+//     const data=await contestObjModel.find({id:req.body.roomId})
+//     var p=[]
+//     data[0].participants.map((i)=>{
+//       p.push({user_name:i.user_name,noOfQuestionsSolved:i.noOfQuestionsSolved, solved: Math.max(...i.solved)})
+//     })
+
+    
+//     //sortin on basis of number of questions
+
+    
+//     //..................
+//     function bubbleSort(arr){
+//       for(let i = 0; i < arr.length; i++){     
+//           for(let j = 0; j < arr.length - i - 1; j++){
+//               if(arr[j + 1].noOfQuestionsSolved > arr[j].noOfQuestionsSolved){
+//                   [arr[j + 1],arr[j]] = [arr[j],arr[j + 1]]
+//               }
+//           }
+//       };
+//       return arr;
+//   };
+//   console.log(p)
+//   bubbleSort(p)
+//   console.log(p)
+
+//   res.json(p)
+
+//     //...................
+// })
 
 app.post("/mycontest", async(req,res)=>{
   const user_name=req.body.user_name
