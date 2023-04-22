@@ -55,6 +55,9 @@ const contestSchema=mongoose.Schema({
     entryfee:Number
 
 })
+const questionSchema=mongoose.Schema({
+
+})
 
 const userSchema=mongoose.Schema({
   user_name: String,
@@ -105,25 +108,16 @@ app.post("/leaderboard",async(req,res)=>{
     data[0].participants.map((i)=>{
       p.push({user_name:i.user_name,noOfQuestionsSolved:i.noOfQuestionsSolved, solved: Math.max(...i.solved)})
     })
+
+    
     //sortin on basis of number of questions
 
     
-
-
     //..................
     function bubbleSort(arr){
-
-      //Outer pass
-      for(let i = 0; i < arr.length; i++){
-  
-          //Inner pass
+      for(let i = 0; i < arr.length; i++){     
           for(let j = 0; j < arr.length - i - 1; j++){
-  
-              //Value comparison using ascending order
-  
-              if(arr[j + 1].noOfQuestionsSolved < arr[j].noOfQuestionsSolved){
-  
-                  //Swapping
+              if(arr[j + 1].noOfQuestionsSolved > arr[j].noOfQuestionsSolved){
                   [arr[j + 1],arr[j]] = [arr[j],arr[j + 1]]
               }
           }
@@ -374,7 +368,7 @@ app.patch("/python",async(req,res)=>{
                   const time=d.getTime()
                   // console.log("Q",Q)
                   // console.log(p.solved)
-                  if(!p.solved){
+                  if(!p.solved[Q]){
                     p.solved[Q]=time
                     p.noOfQuestionsSolved++   
                   }             
@@ -412,17 +406,16 @@ app.patch("/python",async(req,res)=>{
       });    
 })
 
-// app.post("/compiler",function(req,res){
-//   const data = req.body;
-//   const code = data.code;
-//   const input= data.input;
-//   const envData = { OS : "windows" , cmd : "g++"};
-//   compiler.compileCPP(envData , code , function (data) {
-//     res.send(data);
-//     //data.error = error message 
-//     //data.output = output value
-// });
-// });
+
+app.post("/uploadQuestion",(req,res)=>{
+  const statement=req.body.statement
+  const testcase=req.body.testcase
+  const topic=req.body.topic
+  const difficulty=req.body.difficulty
+
+
+})
+
 app.listen(3000)
 
 
