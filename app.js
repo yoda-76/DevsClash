@@ -339,18 +339,14 @@ app.patch("/python",async(req,res)=>{
     const Q=req.body.Q
 
     var data5=await contestObjModel.find({id:roomId})
-      console.log(data5)
 
-    // var data5=await contestObjModel.find({id:roomId}).then(()=>{
-    //   console.log(data5)
-    // })
-    // data5=data5.filter((obj)=>obj.id===roomId)
     console.log(`
     id=${user_name}
     room id = ${roomId}
     Q= ${Q}
     data = ${data5}
     `)
+
     fs.writeFileSync(`id${user_name}.py`, req.body.code);
 
     let options = {
@@ -370,17 +366,19 @@ app.patch("/python",async(req,res)=>{
               console.log("participants:",data5[0].participants)
 
 
-              var updatedPartcipants=[]
-              data5[0].participants.map((p)=>{
+              var updatedPartcipants=data5[0].participants
+              updatedPartcipants.map((p)=>{
                 if(p.user_name==user_name){
                   // console.log("user found", p)
                   const d = new Date()
                   const time=d.getTime()
-                  console.log("Q",Q)
-                  console.log(p.solved)
-                  p.solved[Q]=time
-                  p.noOfQuestionsSolved++                }
-                updatedPartcipants.push({user_name, solved:p.solved})
+                  // console.log("Q",Q)
+                  // console.log(p.solved)
+                  if(!p.solved){
+                    p.solved[Q]=time
+                    p.noOfQuestionsSolved++   
+                  }             
+                }
               })
               
 
