@@ -39,25 +39,31 @@ Output: 2
 
 ]
 const contestSchema=mongoose.Schema({
-    title: String,
-    difficulty:String,
-    duration : String,
-    id: String,
-    questions: Object,
-    startTime:String,
-    startTimeHour:String,
-    startTimeMinute:String,
-    startTimeSecound:String,
-    topic: String,
-    noOfQuestions:Number,
-    participants:Object,
-    winner:String,
-    entryfee:Number
+  title: String,
+  difficulty:String,
+  duration : String,
+  id: String,
+  questions: Object,
+  startTime:String,
+  startTimeHour:String,
+  startTimeMinute:String,
+  startTimeSecound:String,
+  topic: String,
+  noOfQuestions:Number,
+  participants:Object,
+  winner:String,
+  entryfee:Number
 
 })
 const questionSchema=mongoose.Schema({
-
+  qId:String,
+  statement:String,
+  testcase: Object,
+  topic:String,
+  difficulty:String,
+  explanation: String
 })
+
 
 const userSchema=mongoose.Schema({
   user_name: String,
@@ -71,6 +77,7 @@ const userSchema=mongoose.Schema({
 
 const contestObjModel=new mongoose.model('contestObjModel',contestSchema);
 const userObjectModel=new mongoose.model('userObjModel',userSchema);
+const questionObjectModel=new mongoose.model('questionObjectModel',questionSchema);
 
 
 mongoose.connect('mongodb+srv://yadvendras20:abcd1234@cluster0.qw0zi6d.mongodb.net/?retryWrites=true&w=majority').then(e=>{
@@ -166,14 +173,24 @@ app.post("/mycontest", async(req,res)=>{
 })
 
 app.post("/getuser",async(req,res)=>{
+  
   res.json((await userObjectModel.find({user_name:req.body.user_name}))[0])
 })
 
 app.post("/signin", async(req,res)=>{
     const data= req.body;
-    const newobj = new userObjectModel({contest: [], wallet:0,name:data.name, user_name:data.user_name, password:data.password, email:data.email});
-    await newobj.save();
-    res.send("done");
+    const userCheck1=await userObjectModel.find({user_name:req.body.user_name})
+    const userCheck2=await userObjectModel.find({email:req.body.email})
+    
+    if(!userCheck1[0] && !userCheck2[0]){
+      const newobj = new userObjectModel({contest: [], wallet:0,name:data.name, user_name:data.user_name, password:data.password, email:data.email});
+      await newobj.save();
+      res.send("done");
+    }
+    else{
+      res.send("use unique username and email")
+    }
+
 });
 
 app.post("/login",async(req,res)=>{
@@ -426,12 +443,12 @@ app.patch("/python",async(req,res)=>{
 
 
 app.post("/uploadQuestion",(req,res)=>{
-  const statement=req.body.statement
-  const testcase=req.body.testcase
-  const topic=req.body.topic
-  const difficulty=req.body.difficulty
+  const questionObj={qId:req.body.qId,statement:req.body.statement, testcase:req.body.testcase, topic:req.body.topic, difficulty:req.body.difficulty, explanation:req.body.explanation}
 
+  const newQuestion=new questionObjectModel(questionObj)
+  newQuestion.save()
 
+  res.send("question saved")
 })
 
 app.listen(3000)
