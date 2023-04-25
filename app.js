@@ -450,6 +450,11 @@ app.post("/uploadQuestion",(req,res)=>{
 
   res.send("question saved")
 })
+app.get("/getQuestions",async(req,res)=>{
+  const data=await questionObjectModel.find({})
+  console.log(data)
+  res.send(data)
+})
 
 app.listen(3000)
 
