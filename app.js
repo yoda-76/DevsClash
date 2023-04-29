@@ -6,38 +6,38 @@ const app=express()
 const mongoose=require('mongoose')
 const bodyParser=require('body-parser')
 const pythonshell=require("python-shell").PythonShell
-const compiler = require('compilex');
-const options = {stats : true}; //prints stats on console 
-compiler.init(options);
-
+// const compiler = require('compilex');
+// const options = {stats : true}; //prints stats on console 
+// compiler.init(options);
 app.use(bodyParser.json())
 app.use(cors())
 
-var Q=[{st:`write a program to add two integer.
-Example 
-Input: a = 1 , b = 2
-Output: 3
-    `,p:[[4, 2, 6],[4, 6, 8],[5, 9, 14]]},
-    {st:`find the diffrence of two numbers
-Example 
-Input:
-a = 4, b = 2.
-Output: 2
-    `,p:[[4 ,0 ,4],[3, 3,0],[5,3,2]]},
-              {st:`write a program to perform devision and return rimender.
-              Example :  
-              Input: n=5, m=4
-              Output: 1
-                `,p:[[5,4,1],[12,3,0],[9,2,1]]},
-                {st:`Write a program to multiply 2 integer.
-                Example :  
-                Input: N = 4 , m=5
-                Output: 20
-                  `,p:[[4,5,20],[3,2,6],[2,2,4]]}
-    
+app.use(express.static('.codehelp-compiler'));
+app.use(express.urlencoded({ extended: true }));
+const { generateFile } = require("./generateFile");
+const {c, cpp, node, python, java} = require('codehelp-compiler');
+app.use(express.json());
+//....................................................................
+app.post("/cpp", async(req,res)=>{
+    const { language = "cpp", code , input} = req.body;
+    if (code === undefined) {
+      return res.status(400).json({ success: false, error: "Empty code body!" });
+    }
+    const filepath = await generateFile(language, code);
+    let resultPromise = cpp.runFile(`${filepath}`, {stdin:'1\n66677\n333 '}, {compileTimeout:500000});
+    resultPromise
+    .then(result => {
+        console.log(result); //result object
+    })
+    .catch(err => {
+        console.log(err);
+    });
+    res.json({
+      input: input,
+    })
+})
+//....................................................................
 
-
-]
 const contestSchema=mongoose.Schema({
   title: String,
   difficulty:String,
@@ -78,6 +78,7 @@ const userSchema=mongoose.Schema({
 const contestObjModel=new mongoose.model('contestObjModel',contestSchema);
 const userObjectModel=new mongoose.model('userObjModel',userSchema);
 const questionObjectModel=new mongoose.model('questionObjectModel',questionSchema);
+
 
 
 mongoose.connect('mongodb+srv://yadvendras20:abcd1234@cluster0.qw0zi6d.mongodb.net/?retryWrites=true&w=majority').then(e=>{
@@ -264,14 +265,18 @@ app.post("/login",async(req,res)=>{
 
 
 
-
 app.post('/create',async(req,res)=>{
-    const entryfee=40;
-    console.log(req.body)
-    //generate questions dinamically
-    const questions=[]
+  const entryfee=40;
+  console.log(req.body)
+  //generate questions dinamically
+  var Q= await questionObjectModel.find({})
+  // console.log(Q)
+
+  Q=Q.filter(q=>{return q.topic.includes(req.body.topic) &&  q.difficulty.includes(req.body.difficulty)})
+  // console.log(Q)
+    const questions=Q
     for(let i=0;i<Number(req.body.noOfQuestions);i++){
-        questions[i]=Q[Math.floor((Math.random() * 4) + 1)]
+        questions[i]=Q[Math.floor((Math.random() * Q.length) + 1)]
         
         console.log("insidi",i,questions[i])    
     }
