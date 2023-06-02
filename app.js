@@ -27,99 +27,77 @@ app.post("/cpp", async(req,res)=>{
   var data5=await contestObjModel.find({id:roomId})
 
   //................................
-  const { language = "cpp", code = "heelo" , input} = req.body;
-  if (code === undefined) {
-    return res.status(400).json({ success: false, error: "Empty code body!" });
-  }
-  const filepath = await generateFile(language, code);
+  
   //generating inputs to test
-  const inputinp = data5[0].questions[Number(Q)].testcase[0];
+  const inputinp = JSON.parse(data5[0].questions[Number(Q)].testcase);
   console.log(inputinp)
   for(let k=0;k<inputinp.length;k++){
     var cppinput = "";
     var cppoutput = "";
+    var output="";
     for(let i=0;i<inputinp[k].length-1;i++){
       if(typeof inputinp[k][i]=="number"){
         cppinput = cppinput.concat(inputinp[k][i] + "\r\n");
       }
       else if(typeof inputinp[k][i]== "string"){
-        cppinput = cppinput.concat(inputinp[k][i]+ "\\r\\n");
+        cppinput = cppinput.concat(inputinp[k][i]+ "\r\n");
       }
       else{
         for(let j=0;j<inputinp[k][i].length;j++){
           if(typeof inputinp[k][i][j]=="number"){
-            cppinput = cppinput.concat(inputinp[k][i][j]+ "\\r\\n");
+            cppinput = cppinput.concat(inputinp[k][i][j]+ "\r\n");
           }
           else if(typeof inputinp[k][i][j]== "string"){
-            cppinput = cppinput.concat(inputinp[k][i][j]+"\\r\\n");
+            cppinput = cppinput.concat(inputinp[k][i][j]+"\r\n");
           }
         }
       }
     }
-    //one input created
-    if(typeof inputinp[k][inputinp[k].length -1]=="number"){
-      cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length -1] + "\\r\\n");
+    
+    //program executed
+    //formation of output
+    if(typeof inputinp[k][inputinp[k].length -1]==="number"){
+      cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length-1] + "\r\n");
     }
-    else if(typeof inputinp[k][inputinp[k].length -1]== "string"){
-      cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length -1]+ "\\r\\n");
+    else if(typeof inputinp[k][inputinp[k].length -1]==="string"){
+      cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length-1]+ "\r\n");
     }
     else{
       for(let j=0;j<inputinp[k][inputinp[k].length -1].length;j++){
-        if(typeof inputinp[k][inputinp[k].length -1][j]=="number"){
-          cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length -1][j]+ "\\r\\n");
+        if(typeof inputinp[k][inputinp[k].length -1][j]==="number"){
+          cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length-1][j]+ "\r\n");
         }
-        else if(typeof inputinp[k][i][j]== "string"){
-          cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length -1][j]+ "\\r\\n");
+        else if(typeof inputinp[k][inputinp[k].length-1][j]==="string"){
+          cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length-1][j]+ "\r\n");
         }
       }
     }
-    //its output created
-    console.log(cppinput+" "+cppoutput);
+    console.log(cppinput+cppoutput)
+    
   }
-  //cppinput= JSON.stringify(cppinput);
-  console.log(cppinput);
+
+  const { language = "cpp", code = "heelo" ,} = req.body;
+  if (code === undefined) {
+    return res.status(400).json({ success: false, error: "Empty code body!" });
+  }
+  const filepath = await generateFile(language, code);
+
   let resultPromise = cpp.runFile(`${filepath}`, { stdin: cppinput}, {compileTimeout:500000});
-  resultPromise
-  .then(message => {
-      console.log(message);
-      if (messages==cppoutput){
-      
-        const t =async (user_name, Q)=>{
-                data5=await contestObjModel.find({id:roomId})
-                console.log("user:",user_name)
-                console.log("contest:",data5)
-                console.log("participants:",data5[0].participants)
-  
-  
-                var updatedPartcipants=data5[0].participants
-                updatedPartcipants.map((p)=>{
-                  if(p.user_name==user_name){
-                    const d = new Date()
-                    const time=d.getTime()
-                    if(!p.solved[Q]){
-                      p.solved[Q]=time
-                      p.noOfQuestionsSolved++   
-                    }             
-                  }
-                })
-  
-  
-                const result = await contestObjModel.updateOne(
-                  { id:roomId },
-                  { $set: { participants: updatedPartcipants }}
-                );
-              } 
-              // t(user_name, Q)
-              t(user_name, Q)
-   
-      } //result object
-  })
-  .catch(err => {
-      console.log(err);
-  });
+  resultPromise.then(result => {
+    console.log(result.stdout);
+
+    if(result.stdout==cppoutput){
+      t(user_name, Q)
+    }
+    })
+    .catch(err => {
+        console.log(err);
+    });
+    
+
   res.json({
-    incpp: inputinp,
-    inpcpp: cppinput
+    incpp: cppinput,
+    inpcpp: cppoutput
   })
 })
 //....................................................................
@@ -458,6 +436,8 @@ app.patch("/runcode",async(req,res)=>{
     var user_name= req.body.user_name
     const roomId=req.body.roomId
     const Q=req.body.Q
+    const code=req.body.code
+    const lang =req.body.lang
 
     var data5=await contestObjModel.find({id:roomId})
 
@@ -468,174 +448,115 @@ app.patch("/runcode",async(req,res)=>{
     
     `)
 
-// .....................................................................................
-if(req.body.lang=="python"){
-  fs.writeFileSync(`id${user_name}.py`, req.body.code);
-    // console.log(data5[0].questions[Number(Q)])
-    let options = {
-        mode: 'text',
-        pythonOptions: ['-u'], 
-        args: data5[0].questions[Number(Q)].testcase[0]
-      };
-      
-      pythonshell.run(`id${user_name}.py`, options).then(messages=>{
-         // if result is true then update participant-> solved in contest obj in db
-    if (messages=="True"){
-        
-      const t =async (user_name, Q)=>{
-              data5=await contestObjModel.find({id:roomId})
-              console.log("user:",user_name)
-              // console.log("contest:",data5)
-              console.log("participants:",data5[0].participants)
-
-
-              var updatedPartcipants=data5[0].participants
-              updatedPartcipants.map((p)=>{
-                if(p.user_name==user_name){
-                  // console.log("user found", p)
-                  const d = new Date()
-                  const time=d.getTime()
-                  // console.log("Q",Q)
-                  // console.log(p.solved)
-                  if(!p.solved[Q]){
-                    p.solved[Q]=time
-                    p.noOfQuestionsSolved++   
-                  }             
-                }
-              })
-              
-
-
-              // data5.map((p)=>{
-              //   const solved=p.solved
-              //   if(p.user_name==user_name){
-
-              //     var currdate=new Date()
-              //     currdate=curdate.getTime()
-
-              //     solved[Q] = currdate
-              //     console.log("solved:",solved)
-              //   }
-              //   updatedPartcipants.push({solved, user_name:p.user_name})
-              // })
-              // console.log("up",updatedPartcipants)
-
-
-              const result = await contestObjModel.updateOne(
-                { id:roomId },
-                { $set: { participants: updatedPartcipants }}
-              );
-            } 
-            // t(user_name, Q)
-            t(user_name, Q)
- 
+const t =async (user_name, Q)=>{
+  data5=await contestObjModel.find({id:roomId})
+  console.log("user:",user_name)
+  console.log("participants:",data5[0].participants)
+  var updatedPartcipants=data5[0].participants
+  updatedPartcipants.map((p)=>{
+    if(p.user_name==user_name){
+      const d = new Date()
+      const time=d.getTime()
+      if(!p.solved[Q]){
+        p.solved[Q]=time
+        p.noOfQuestionsSolved++   
+      }             
     }
-    //     //before sending check for winning condition
-        res.json({msg:messages})//also send the updated contest obj
-      }); 
-}
-else{
-  const { language = "cpp", code = "heelo" , input} = req.body;
-  if (code === undefined) {
-    return res.status(400).json({ success: false, error: "Empty code body!" });
+  })
+  const result = await contestObjModel.updateOne(
+    { id:roomId },
+    { $set: { participants: updatedPartcipants }}
+  );
+  if (result.nModified === 0) {
+    // If the document wasn't modified, it means it wasn't found
+    return res.status(404).json({ msg: "Document not found" });
   }
-  const filepath = await generateFile(language, code);
-  //generating inputs to test
-  const inputinp = data5[0].questions[Number(Q)].testcase[0];
-  console.log(inputinp)
+} 
+
+
+const inputinp = JSON.parse(data5[0].questions[Number(Q)].testcase);
+  // console.log(inputinp)
   for(let k=0;k<inputinp.length;k++){
     var cppinput = "";
     var cppoutput = "";
+    var output="";
     for(let i=0;i<inputinp[k].length-1;i++){
       if(typeof inputinp[k][i]=="number"){
         cppinput = cppinput.concat(inputinp[k][i] + "\r\n");
       }
       else if(typeof inputinp[k][i]== "string"){
-        cppinput = cppinput.concat(inputinp[k][i]+ "\\r\\n");
+        cppinput = cppinput.concat(inputinp[k][i]+ "\r\n");
       }
       else{
         for(let j=0;j<inputinp[k][i].length;j++){
           if(typeof inputinp[k][i][j]=="number"){
-            cppinput = cppinput.concat(inputinp[k][i][j]+ "\\r\\n");
+            cppinput = cppinput.concat(inputinp[k][i][j]+ "\r\n");
           }
           else if(typeof inputinp[k][i][j]== "string"){
-            cppinput = cppinput.concat(inputinp[k][i][j]+"\\r\\n");
+            cppinput = cppinput.concat(inputinp[k][i][j]+"\r\n");
           }
         }
       }
     }
-    //one input created
-    if(typeof inputinp[k][inputinp[k].length -1]=="number"){
-      cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length -1] + "\\r\\n");
+    
+    //program executed
+    //formation of output
+    if(typeof inputinp[k][inputinp[k].length -1]==="number"){
+      cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length-1] + "\r\n");
     }
-    else if(typeof inputinp[k][inputinp[k].length -1]== "string"){
-      cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length -1]+ "\\r\\n");
+    else if(typeof inputinp[k][inputinp[k].length -1]==="string"){
+      cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length-1]+ "\r\n");
     }
-    // ............................................................
     else{
       for(let j=0;j<inputinp[k][inputinp[k].length -1].length;j++){
-        if(typeof inputinp[k][inputinp[k].length -1][j]=="number"){
-          cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length -1][j]+ "\\r\\n");
+        if(typeof inputinp[k][inputinp[k].length -1][j]==="number"){
+          cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length-1][j]+ "\r\n");
         }
-        else if(typeof inputinp[k][i][j]== "string"){
-          cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length -1][j]+ "\\r\\n");
+        else if(typeof inputinp[k][inputinp[k].length-1][j]==="string"){
+          cppoutput = cppoutput.concat(inputinp[k][inputinp[k].length-1][j]+ "\r\n");
         }
       }
     }
-    //its output created
-    console.log(cppinput+" "+cppoutput);
   }
-  //cppinput= JSON.stringify(cppinput);
-  console.log(cppinput);
-  let resultPromise = cpp.runFile(`${filepath}`, { stdin: cppinput}, {compileTimeout:500000});
-  resultPromise
-  .then(message => {
-      console.log(message);
-      if (messages==cppoutput){
-      
-        const t =async (user_name, Q)=>{
-                data5=await contestObjModel.find({id:roomId})
-                console.log("user:",user_name)
-                console.log("contest:",data5)
-                console.log("participants:",data5[0].participants)
-  
-  
-                var updatedPartcipants=data5[0].participants
-                updatedPartcipants.map((p)=>{
-                  if(p.user_name==user_name){
-                    const d = new Date()
-                    const time=d.getTime()
-                    if(!p.solved[Q]){
-                      p.solved[Q]=time
-                      p.noOfQuestionsSolved++   
-                    }             
-                  }
-                })
-  
-  
-                const result = await contestObjModel.updateOne(
-                  { id:roomId },
-                  { $set: { participants: updatedPartcipants }}
-                );
-              } 
-              // t(user_name, Q)
-              t(user_name, Q)
-   
-      } //result object
-  })
-  .catch(err => {
-      console.log(err);
-  });
-  res.json({
-    incpp: inputinp,
-    inpcpp: cppinput
-  })
+
+// .....................................................................................
+if(lang=="python"){
+  fs.writeFileSync(`id${user_name}.py`, code);
+    // console.log(data5[0].questions[Number(Q)])
+    let options = {
+        mode: 'text',
+        pythonOptions: ['-u'], 
+        args: cppinput
+      };
+      pythonshell.run(`id${user_name}.py`, options).then(messages=>{
+        if (messages==cppoutput){
+          t(user_name, Q)
+          res.json({msg:True})
+        }else{
+          res.json({msg:False})
+        }
+      }); 
 }
-// ....................................................
-
-
+else if(lang=="cpp"){
+    if (code === undefined) {
+      return res.status(400).json({ success: false, error: "Empty code body!" });
+    }
+    const filepath = await generateFile("cpp", code);
+    let resultPromise = cpp.runFile(`${filepath}`, { stdin: cppinput}, {compileTimeout:500000});
+    resultPromise.then(result => {
+      console.log(result.stdout);
+      if(result.stdout==cppoutput){
+        t(user_name, Q)
+        res.json({msg:True})
+      }else{
+        res.json({msg:False})
+      }
+      })
+      .catch(err => {
+          console.log(err);
+      });
       res.json({msg:"cpp"})//also send the updated contest obj
-
+}
 })
 
 
