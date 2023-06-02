@@ -360,8 +360,9 @@ app.post('/create',async(req,res)=>{
 
   Q=Q.filter(q=>{return q.topic.includes(req.body.topic) &&  q.difficulty.includes(req.body.difficulty)})
   // console.log(Q)
-    // const questions=Q
+    const questions=[]
     for(let i=0;i<Number(req.body.noOfQuestions);i++){
+
         questions[i]=Q[Math.floor((Math.random() * Q.length) + 1)]
         
         console.log("insidi",i,questions[i])    
