@@ -432,49 +432,50 @@ app.patch("/join", async (req, res) => {
 
 
 app.patch("/runcode",async(req,res)=>{
-    console.log(req.body.code)
     var user_name= req.body.user_name
     const roomId=req.body.roomId
     const Q=req.body.Q
     const code=req.body.code
     const lang =req.body.lang
-
     var data5=await contestObjModel.find({id:roomId})
 
-    console.log(`
-    id=${user_name}
-    room id = ${roomId}
-    Q= ${Q}
+    // console.log(`
+    // id=${user_name}
+    // room id = ${roomId}
+    // Q= ${Q}
     
-    `)
+    // `)
 
-const t =async (user_name, Q)=>{
-  data5=await contestObjModel.find({id:roomId})
-  console.log("user:",user_name)
-  console.log("participants:",data5[0].participants)
-  var updatedPartcipants=data5[0].participants
-  updatedPartcipants.map((p)=>{
-    if(p.user_name==user_name){
-      const d = new Date()
-      const time=d.getTime()
-      if(!p.solved[Q]){
-        p.solved[Q]=time
-        p.noOfQuestionsSolved++   
-      }             
+  const t =async (user_name, Q)=>{
+    data5=await contestObjModel.find({id:roomId})
+    console.log("user:",user_name)
+    console.log("participants:",data5[0].participants)
+    var updatedPartcipants=data5[0].participants
+    updatedPartcipants.map((p)=>{
+      if(p.user_name==user_name){
+        const d = new Date()
+        const time=d.getTime()
+        if(!p.solved[Q]){
+          p.solved[Q]=time
+          p.noOfQuestionsSolved++   
+        }             
+      }
+    })
+    const result = await contestObjModel.updateOne(
+      { id:roomId },
+      { $set: { participants: updatedPartcipants }}
+    );
+    if (result.nModified === 0) {
+      // If the document wasn't modified, it means it wasn't found
+      return res.status(404).json({ msg: "Document not found" });
     }
-  })
-  const result = await contestObjModel.updateOne(
-    { id:roomId },
-    { $set: { participants: updatedPartcipants }}
-  );
-  if (result.nModified === 0) {
-    // If the document wasn't modified, it means it wasn't found
-    return res.status(404).json({ msg: "Document not found" });
-  }
-} 
+  } 
+
+  //....................................
+  //parsing the testcases
 
 
-const inputinp = JSON.parse(data5[0].questions[Number(Q)].testcase);
+  const inputinp = JSON.parse(data5[0].questions[Number(Q)].testcase);
   // console.log(inputinp)
   for(let k=0;k<inputinp.length;k++){
     var cppinput = "";
@@ -520,6 +521,8 @@ const inputinp = JSON.parse(data5[0].questions[Number(Q)].testcase);
   }
 
 // .....................................................................................
+
+
 if(lang=="python"){
   fs.writeFileSync(`id${user_name}.py`, code);
     // console.log(data5[0].questions[Number(Q)])
