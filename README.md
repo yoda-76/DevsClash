@@ -1,4 +1,4 @@
-# CodeClash
+# DevsClash
 It was an attempt to create a competitive programming platform where a  coder can battle 1 on 1 with another coder. Each battle will have an Entry fee. and the winner will get a cash prize from the collected pool of money.
 Multiple coders can also join/create a coding room.
 
