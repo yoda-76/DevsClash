@@ -344,8 +344,12 @@ app.post('/create',async(req,res)=>{
   console.log(Q)
     const questions=[]
     for(let i=0;i<Number(req.body.noOfQuestions);i++){
+      if(Q.length==1){
+        temp=0
+      }
+      else{
         temp=Math.floor((Math.random() * Q.length) + 1)
-        if(temp==1){temp--}
+      }
         
         questions[i]=Q[temp]
         console.log(`temp=${temp}`)
