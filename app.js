@@ -335,9 +335,13 @@ app.post('/create',async(req,res)=>{
   //generate questions dinamically
   var Q= await questionObjectModel.find({})
   // console.log(Q)
+  console.log(`Topic=${req.body.topic}`)
+  console.log(`diff=${req.body.difficulty}`)
+
+   
 
   Q=Q.filter(q=>{return q.topic.includes(req.body.topic) &&  q.difficulty.includes(req.body.difficulty)})
-  // console.log(Q)
+  console.log(Q)
     const questions=[]
     for(let i=0;i<Number(req.body.noOfQuestions);i++){
 
@@ -346,7 +350,7 @@ app.post('/create',async(req,res)=>{
         console.log("insidi",i,questions[i])    
     }
     console.log("choosen qs",questions)
-    console.log(Q[Math.floor((Math.random() * 10) + 1)])
+    // console.log(Q[Math.floor((Math.random() * 10) + 1)])
 
     const cObj={...req.body,questions:questions, participants: [{user_name:req.body.user_name,noOfQuestionsSolved:0, solved: Array(req.body.noOfQuestions).fill(0)}]}
     console.log("cobj",cObj)
