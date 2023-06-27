@@ -9,5 +9,19 @@ Currently, the UX is not that great. The website is slow. and there are only 2 q
 To run it on your machine, clone this repo. 
 
 # contribute
-If you want to contribute.
+If you'd like to contribute. You can add questions/problems.
+Add your questions in Questions/question.js in this format
+
+//...................................
+[Q_id, Topic, Statement, Testcases]
+//...................................
+
+Q_id (String): Question id in this format 'username-Q_no'. Here username is your GitHub username and Q_no is the serial no of the question uploaded by you. 
+
+Topic (String): array/string/...
+
+Statement (String): Explanation of the problem with the examples
+
+Testcases (Array of Array): [testcase-1, testcase-2, testcase-3, ...] Here each test case is an array in itself where the last element is the desired result and all other elements are arguments for the given questions
+
 
