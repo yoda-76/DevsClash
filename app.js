@@ -344,9 +344,9 @@ app.post('/create',async(req,res)=>{
   console.log(Q)
     const questions=[]
     for(let i=0;i<Number(req.body.noOfQuestions);i++){
-
-        questions[i]=Q[Math.floor((Math.random() * Q.length) + 1)]
-        
+        temp=Math.floor((Math.random() * Q.length) + 1)
+        questions[i]=Q[temp]
+        console.log(`temp=${temp}`)
         console.log("insidi",i,questions[i])    
     }
     console.log("choosen qs",questions)
