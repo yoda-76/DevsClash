@@ -148,7 +148,7 @@ const questionObjectModel = new mongoose.model(
 
 mongoose
   .connect(
-    "mongodb+srv://yadvendras20:abcd1234@cluster0.qw0zi6d.mongodb.net/?retryWrites=true&w=majority"
+    "your-mongo-url"
   )
   .then((e) => {
     console.log("success");
